@@ -9,3 +9,6 @@ categories = ["science"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+
+[dev-dependencies]
+approx = "0.5.1"
