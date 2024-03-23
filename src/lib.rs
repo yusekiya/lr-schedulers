@@ -1,7 +1,7 @@
-pub mod constantlr;
-pub mod linearlr;
-pub mod exponentiallr;
-pub mod cosineannealinglr;
+pub mod constant;
+pub mod linear;
+pub mod exponential;
+pub mod cosine_annealing;
 
 pub trait Scheduler {
     /// Proceed the step of scheduler.

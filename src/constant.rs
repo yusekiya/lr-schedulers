@@ -7,7 +7,7 @@ use crate::Scheduler;
 /// This scheduler generates modified learning rates until a certain number of steps:
 /// 
 /// ```
-/// # use lr_schedulers::constantlr::ConstantLR;
+/// # use lr_schedulers::constant::ConstantLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = ConstantLR::new(1.0, 2.0, 2, 0);
 /// let mut learning_rates = Vec::new();
@@ -21,7 +21,7 @@ use crate::Scheduler;
 /// Starting point can be changed with `init_step`:
 /// 
 /// ```
-/// # use lr_schedulers::constantlr::ConstantLR;
+/// # use lr_schedulers::constant::ConstantLR;
 /// # use lr_schedulers::Scheduler;
 /// let init_step = 1;
 /// let mut scheduler = ConstantLR::new(1.0, 2.0, 2, init_step);
@@ -36,7 +36,7 @@ use crate::Scheduler;
 /// The `step` method should be called after training:
 /// 
 /// ```no_run
-/// # use lr_schedulers::constantlr::ConstantLR;
+/// # use lr_schedulers::constant::ConstantLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = ConstantLR::new(1.0, 2.0, 2, 0);
 /// for epoch in 0 .. 10 {

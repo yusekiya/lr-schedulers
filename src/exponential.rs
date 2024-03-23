@@ -7,7 +7,7 @@ use crate::Scheduler;
 /// This scheduler generates geometrically changing learning rates:
 /// 
 /// ```
-/// # use lr_schedulers::exponentiallr::ExponentialLR;
+/// # use lr_schedulers::exponential::ExponentialLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = ExponentialLR::new(2.0, 0.5, 0);
 /// let mut learning_rates = Vec::new();
@@ -21,7 +21,7 @@ use crate::Scheduler;
 /// Starting point can be changed with `init_step`:
 /// 
 /// ```
-/// # use lr_schedulers::exponentiallr::ExponentialLR;
+/// # use lr_schedulers::exponential::ExponentialLR;
 /// # use lr_schedulers::Scheduler;
 /// let init_step = 1;
 /// let mut scheduler = ExponentialLR::new(2.0, 0.5, init_step);
@@ -36,7 +36,7 @@ use crate::Scheduler;
 /// The `step` method should be called after training:
 /// 
 /// ```no_run
-/// # use lr_schedulers::exponentiallr::ExponentialLR;
+/// # use lr_schedulers::exponential::ExponentialLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = ExponentialLR::new(2.0, 0.5, 0);
 /// for epoch in 0 .. 10 {

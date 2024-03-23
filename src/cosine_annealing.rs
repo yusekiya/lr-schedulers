@@ -9,7 +9,7 @@ const PI: f64 = std::f64::consts::PI;
 /// This scheduler generates periodically changing learning rates:
 /// 
 /// ```
-/// # use lr_schedulers::cosineannealinglr::CosineAnnealingLR;
+/// # use lr_schedulers::cosine_annealing::CosineAnnealingLR;
 /// # use lr_schedulers::Scheduler;
 /// # use std::iter::zip;
 /// let mut scheduler = CosineAnnealingLR::new(1.0, 0.0, 2, 0);
@@ -26,7 +26,7 @@ const PI: f64 = std::f64::consts::PI;
 /// Starting point can be changed with `init_step`:
 /// 
 /// ```
-/// # use lr_schedulers::cosineannealinglr::CosineAnnealingLR;
+/// # use lr_schedulers::cosine_annealing::CosineAnnealingLR;
 /// # use lr_schedulers::Scheduler;
 /// # use std::iter::zip;
 /// let init_step = 1;
@@ -44,7 +44,7 @@ const PI: f64 = std::f64::consts::PI;
 /// The `step` method should be called after training:
 /// 
 /// ```no_run
-/// # use lr_schedulers::cosineannealinglr::CosineAnnealingLR;
+/// # use lr_schedulers::cosine_annealing::CosineAnnealingLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = CosineAnnealingLR::new(1.0, 0.0, 2, 0);
 /// for epoch in 0 .. 10 {
