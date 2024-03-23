@@ -1,10 +1,10 @@
 use crate::Scheduler;
 
-/// Change the learning rate linearly until the number of epoch reaches a given number.
+/// Change the learning rate linearly until the number of steps reaches a given number.
 /// 
 /// # Examples
 /// 
-/// This scheduler generates linearly changing learning rates until a certain number of epoch:
+/// This scheduler generates linearly changing learning rates until a certain number of steps:
 /// 
 /// ```
 /// # use lr_schedulers::linearlr::LinearLR;
@@ -18,13 +18,13 @@ use crate::Scheduler;
 /// assert_eq!(learning_rates, [2.0, 1.25, 0.5, 0.5, 0.5]);
 /// ```
 /// 
-/// Starting point can be changed with `init_epoch`:
+/// Starting point can be changed with `init_step`:
 /// 
 /// ```
 /// # use lr_schedulers::linearlr::LinearLR;
 /// # use lr_schedulers::Scheduler;
-/// let init_epoch = 1;
-/// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 2, init_epoch);
+/// let init_step = 1;
+/// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 2, init_step);
 /// let mut learning_rates = Vec::new();
 /// for _ in 0 .. 5 {
 ///     learning_rates.push(scheduler.get_lr());
@@ -50,7 +50,7 @@ use crate::Scheduler;
 pub struct LinearLR {
     lr: f64,
     base_lr: f64,
-    epoch: usize,
+    step: usize,
     total_iters: usize,
     grad: f64,
     start_factor: f64,
@@ -60,32 +60,32 @@ pub struct LinearLR {
 impl LinearLR {
     /// Construct a LinearLR instance.
     /// 
-    /// This scheduler returns learning rate that interpolates `start_factor * base_lr` and `end_factor * base_lr` when the number of epoch is between 0 and `total_iters`.
+    /// This scheduler returns learning rate that interpolates `start_factor * base_lr` and `end_factor * base_lr` when the number of steps is between 0 and `total_iters`.
     /// After that, this returns `end_factor * base_lr`.
-    /// Starting epoch can be specified by `init_epoch`. Use `init_epoch=0` to train a model from the beginning.
+    /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
     pub fn new(
         base_lr: f64,
         start_factor: f64,
         end_factor: f64,
         total_iters: usize,
-        init_epoch: usize
+        init_step: usize
     ) -> Self {
-        if init_epoch >= total_iters {
+        if init_step >= total_iters {
             LinearLR {
                 lr: end_factor * base_lr,
                 base_lr,
-                epoch: init_epoch,
+                step: init_step,
                 total_iters,
                 grad: 0.0, // Dummy gradient
                 start_factor,
                 end_factor,
             }
-        } else if init_epoch == 0 {
+        } else if init_step == 0 {
             let grad = (end_factor - start_factor) / (total_iters as f64);
             LinearLR {
                 lr: start_factor * base_lr,
                 base_lr,
-                epoch: 0,
+                step: 0,
                 total_iters,
                 grad,
                 start_factor,
@@ -93,11 +93,11 @@ impl LinearLR {
             }
         } else {
             let grad = (end_factor - start_factor) / (total_iters as f64);
-            let lr = base_lr * (init_epoch as f64).mul_add(grad, start_factor);
+            let lr = base_lr * (init_step as f64).mul_add(grad, start_factor);
             LinearLR {
                 lr,
                 base_lr,
-                epoch: init_epoch,
+                step: init_step,
                 total_iters,
                 grad,
                 start_factor,
@@ -109,11 +109,11 @@ impl LinearLR {
 
 impl Scheduler for LinearLR {
     fn step(&mut self, _loss: f64) {
-        self.epoch += 1;
-        if self.epoch >= self.total_iters {
+        self.step += 1;
+        if self.step >= self.total_iters {
             self.lr = self.end_factor * self.base_lr;
         } else {
-            self.lr = self.base_lr * (self.epoch as f64).mul_add(self.grad, self.start_factor);
+            self.lr = self.base_lr * (self.step as f64).mul_add(self.grad, self.start_factor);
         }
     }
 
@@ -133,9 +133,9 @@ mod tests {
         let start_factor = 2.0;
         let end_factor = 0.5;
         let total_iters = 2;
-        let init_epoch = 0;
+        let init_step = 0;
         let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_epoch
+            base_lr, start_factor, end_factor, total_iters, init_step
         );
         let expected_lrs = [2.0, 1.25, 0.5, 0.5, 0.5];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
@@ -152,9 +152,9 @@ mod tests {
         let start_factor = 0.5;
         let end_factor = 2.0;
         let total_iters = 2;
-        let init_epoch = 0;
+        let init_step = 0;
         let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_epoch
+            base_lr, start_factor, end_factor, total_iters, init_step
         );
         let expected_lrs = [0.5, 1.25, 2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
@@ -166,14 +166,14 @@ mod tests {
     }
 
     #[test]
-    fn start_epoch_before_total_iters() {
+    fn start_step_before_total_iters() {
         let base_lr = 1.0;
         let start_factor = 0.5;
         let end_factor = 2.0;
         let total_iters = 2;
-        let init_epoch = 1;
+        let init_step = 1;
         let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_epoch
+            base_lr, start_factor, end_factor, total_iters, init_step
         );
         let expected_lrs = [1.25, 2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
@@ -185,14 +185,14 @@ mod tests {
     }
 
     #[test]
-    fn start_epoch_after_total_iters() {
+    fn start_step_after_total_iters() {
         let base_lr = 1.0;
         let start_factor = 0.5;
         let end_factor = 2.0;
         let total_iters = 2;
-        let init_epoch = 3;
+        let init_step = 3;
         let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_epoch
+            base_lr, start_factor, end_factor, total_iters, init_step
         );
         let expected_lrs = [2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
@@ -204,14 +204,14 @@ mod tests {
     }
 
     #[test]
-    fn start_epoch_on_total_iters() {
+    fn start_step_on_total_iters() {
         let base_lr = 1.0;
         let start_factor = 0.5;
         let end_factor = 2.0;
         let total_iters = 2;
-        let init_epoch = 2;
+        let init_step = 2;
         let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_epoch
+            base_lr, start_factor, end_factor, total_iters, init_step
         );
         let expected_lrs = [2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
