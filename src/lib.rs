@@ -1,3 +1,5 @@
+pub mod constantlr;
+
 pub trait Scheduler {
     /// Proceed the step of scheduler.
     fn step(&mut self, loss: f64);
