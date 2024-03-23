@@ -1,14 +1,6 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub trait Scheduler {
+    /// Proceed the step of scheduler.
+    fn step(&mut self, loss: f64);
+    /// Get a learning rate for the current step.
+    fn get_lr(&self) -> f64;
 }
