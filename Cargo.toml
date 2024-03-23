@@ -2,8 +2,8 @@
 name = "candle-scheduler"
 version = "0.1.0-alpha.0"
 edition = "2021"
-description = "Learning rate scheduler for use with candle."
-repository = "https://github.com/yusekiya/candle-scheduler"
+description = "Learning rate schedulers in Rust."
+repository = "https://github.com/yusekiya/lr-schedulers"
 keywords = ["machine-learning"]
 categories = ["science"]
 license = "MIT OR Apache-2.0"
