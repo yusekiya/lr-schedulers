@@ -18,6 +18,21 @@ use crate::Scheduler;
 /// assert_eq!(learning_rates, [2.0, 1.25, 0.5, 0.5, 0.5]);
 /// ```
 /// 
+/// Starting point can be changed with `init_epoch`:
+/// 
+/// ```
+/// # use lr_schedulers::linearlr::LinearLR;
+/// # use lr_schedulers::Scheduler;
+/// let init_epoch = 1;
+/// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 2, init_epoch);
+/// let mut learning_rates = Vec::new();
+/// for _ in 0 .. 5 {
+///     learning_rates.push(scheduler.get_lr());
+///     scheduler.step(0.01); // Note: loss value is not used in this scheduler.
+/// }
+/// assert_eq!(learning_rates, [1.25, 0.5, 0.5, 0.5, 0.5]);
+/// ```
+/// 
 /// The `step` method should be called after training:
 /// 
 /// ```no_run
