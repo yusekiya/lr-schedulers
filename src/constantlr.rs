@@ -1,6 +1,36 @@
 use crate::Scheduler;
 
 /// Decays the learning rate by a constant factor until the number of epoch reaches a given number.
+/// 
+/// # Examples
+/// 
+/// This scheduler generates modified learning rates until a certain number of epoch:
+/// 
+/// ```
+/// # use lr_schedulers::constantlr::ConstantLR;
+/// # use lr_schedulers::Scheduler;
+/// let mut scheduler = ConstantLR::new(1.0, 2.0, 2, 0);
+/// let mut learning_rates = Vec::new();
+/// for _ in 0 .. 5 {
+///     learning_rates.push(scheduler.get_lr());
+///     scheduler.step(0.01); // Note: loss value is not used in this scheduler.
+/// }
+/// assert_eq!(learning_rates, [2.0, 2.0, 1.0, 1.0, 1.0]);
+/// ```
+/// 
+/// The `step` method should be called after training:
+/// 
+/// ```no_run
+/// # use lr_schedulers::constantlr::ConstantLR;
+/// # use lr_schedulers::Scheduler;
+/// let mut scheduler = ConstantLR::new(1.0, 2.0, 2, 0);
+/// for epoch in 0 .. 10 {
+///     let lr = scheduler.get_lr();
+///     // Run training with `lr` and calculate loss
+/// #    let loss = 0.001;
+///     scheduler.step(loss);
+/// }
+/// ```
 #[derive(Debug)]
 pub struct ConstantLR {
     lr: f64,
