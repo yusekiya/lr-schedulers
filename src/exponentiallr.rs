@@ -1,0 +1,116 @@
+use crate::Scheduler;
+
+/// Change the learning rate geometrically.
+/// 
+/// # Examples
+/// 
+/// This scheduler generates geometrically changing learning rates:
+/// 
+/// ```
+/// # use lr_schedulers::exponentiallr::ExponentialLR;
+/// # use lr_schedulers::Scheduler;
+/// let mut scheduler = ExponentialLR::new(2.0, 0.5, 0);
+/// let mut learning_rates = Vec::new();
+/// for _ in 0 .. 5 {
+///     learning_rates.push(scheduler.get_lr());
+///     scheduler.step(0.01); // Note: loss value is not used in this scheduler.
+/// }
+/// assert_eq!(learning_rates, [2.0, 1.0, 0.5, 0.25, 0.125]);
+/// ```
+/// 
+/// Starting point can be changed with `init_epoch`:
+/// 
+/// ```
+/// # use lr_schedulers::exponentiallr::ExponentialLR;
+/// # use lr_schedulers::Scheduler;
+/// let init_epoch = 1;
+/// let mut scheduler = ExponentialLR::new(2.0, 0.5, init_epoch);
+/// let mut learning_rates = Vec::new();
+/// for _ in 0 .. 5 {
+///     learning_rates.push(scheduler.get_lr());
+///     scheduler.step(0.01); // Note: loss value is not used in this scheduler.
+/// }
+/// assert_eq!(learning_rates, [1.0, 0.5, 0.25, 0.125, 0.0625]);
+/// ```
+/// 
+/// The `step` method should be called after training:
+/// 
+/// ```no_run
+/// # use lr_schedulers::exponentiallr::ExponentialLR;
+/// # use lr_schedulers::Scheduler;
+/// let mut scheduler = ExponentialLR::new(2.0, 0.5, 0);
+/// for epoch in 0 .. 10 {
+///     let lr = scheduler.get_lr();
+///     // Run training with `lr` and calculate loss
+/// #    let loss = 0.001;
+///     scheduler.step(loss);
+/// }
+/// ```
+#[derive(Debug)]
+pub struct ExponentialLR {
+    lr: f64,
+    gamma: f64,
+}
+
+impl ExponentialLR {
+    /// Construct a ExponentialLR instance.
+    /// 
+    /// This scheduler returns learning rate at a step i as
+    /// lr_i = `gamma` * lr_{i-1}.
+    /// 
+    /// Starting epoch can be specified by `init_epoch`. Use `init_epoch=0` to train a model from the beginning.
+    pub fn new(base_lr: f64, gamma: f64, init_epoch: usize) -> Self {
+        let lr = base_lr * gamma.powi(init_epoch as i32);
+        ExponentialLR { lr, gamma }
+    }
+}
+
+impl Scheduler for ExponentialLR {
+    fn step(&mut self, _loss: f64) {
+        self.lr *= self.gamma;
+    }
+
+    fn get_lr(&self) -> f64 {
+        self.lr
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Scheduler;
+    use super::*;
+
+    #[test]
+    fn decrease_lr() {
+        let base_lr = 2.0;
+        let gamma = 0.5;
+        let init_epoch = 0;
+        let mut scheduler = ExponentialLR::new(
+            base_lr, gamma, init_epoch
+        );
+        let expected_lrs = [2.0, 1.0, 0.5, 0.25, 0.125];
+        for (i, exp_lr) in expected_lrs.iter().enumerate() {
+            let lr = scheduler.get_lr();
+            assert_eq!(lr, *exp_lr, "Step {}", i);
+            // Process a step with dummy loss
+            scheduler.step(0.0);
+        }
+    }
+
+    #[test]
+    fn start_epoch_midway() {
+        let base_lr = 2.0;
+        let gamma = 0.5;
+        let init_epoch = 2;
+        let mut scheduler = ExponentialLR::new(
+            base_lr, gamma, init_epoch
+        );
+        let expected_lrs = [0.5, 0.25, 0.125, 0.0625];
+        for (i, exp_lr) in expected_lrs.iter().enumerate() {
+            let lr = scheduler.get_lr();
+            assert_eq!(lr, *exp_lr, "Step {}", i);
+            // Process a step with dummy loss
+            scheduler.step(0.0);
+        }
+    }
+}
