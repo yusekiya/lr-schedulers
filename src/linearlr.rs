@@ -4,6 +4,22 @@ use crate::Scheduler;
 /// 
 /// # Examples
 /// 
+/// This scheduler generates linearly changing learning rates until a certain number of epoch:
+/// 
+/// ```
+/// # use lr_schedulers::linearlr::LinearLR;
+/// # use lr_schedulers::Scheduler;
+/// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 2, 0);
+/// let mut learning_rates = Vec::new();
+/// for _ in 0 .. 5 {
+///     learning_rates.push(scheduler.get_lr());
+///     scheduler.step(0.01); // Note: loss value is not used in this scheduler.
+/// }
+/// assert_eq!(learning_rates, [2.0, 1.25, 0.5, 0.5, 0.5]);
+/// ```
+/// 
+/// The `step` method should be called after training:
+/// 
 /// ```no_run
 /// # use lr_schedulers::linearlr::LinearLR;
 /// # use lr_schedulers::Scheduler;
