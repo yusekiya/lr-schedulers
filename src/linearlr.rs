@@ -1,6 +1,20 @@
 use crate::Scheduler;
 
 /// Change the learning rate linearly until the number of epoch reaches a given number.
+/// 
+/// # Examples
+/// 
+/// ```no_run
+/// # use lr_schedulers::linearlr::LinearLR;
+/// # use lr_schedulers::Scheduler;
+/// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 5, 0);
+/// for epoch in 0 .. 10 {
+///     let lr = scheduler.get_lr();
+///     // Run training with `lr` and calculate loss
+/// #    let loss = 0.001;
+///     scheduler.step(loss);
+/// }
+/// ```
 #[derive(Debug)]
 pub struct LinearLR {
     lr: f64,
@@ -18,20 +32,6 @@ impl LinearLR {
     /// This scheduler returns learning rate that interpolates `start_factor * base_lr` and `end_factor * base_lr` when the number of epoch is between 0 and `total_iters`.
     /// After that, this returns `end_factor * base_lr`.
     /// Starting epoch can be specified by `init_epoch`. Use `init_epoch=0` to train a model from the beginning.
-    /// 
-    /// # Examples
-    /// 
-    /// ```no_run
-    /// # use lr_schedulers::linearlr::LinearLR;
-    /// # use lr_schedulers::Scheduler;
-    /// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 5, 0);
-    /// for epoch in 0 .. 10 {
-    ///     let lr = scheduler.get_lr();
-    ///     // Run training with `lr` and calculate loss
-    /// #    let loss = 0.001;
-    ///     scheduler.step(loss);
-    /// }
-    /// ```
     pub fn new(
         base_lr: f64,
         start_factor: f64,
