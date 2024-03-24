@@ -67,6 +67,7 @@ impl CosineAnnealingLR {
     /// Construct a CosineAnnealingLR instance.
     /// 
     /// This scheduler returns learning rate that oscillates between `eta_0` and `eta_1` with a period of `2*t_max`.
+    /// The parameter `t_max` must be larger than 0. When 0 is provided, its value is replaced with 1.
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
     pub fn new(
         eta_0: f64,
@@ -74,6 +75,7 @@ impl CosineAnnealingLR {
         t_max: usize,
         init_step: usize,
     ) -> Self {
+        let t_max = t_max.max(1);
         let lr = if init_step == 0 {
             eta_0
         } else {
