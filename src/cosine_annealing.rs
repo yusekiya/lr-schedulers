@@ -54,7 +54,7 @@ const PI: f64 = std::f64::consts::PI;
 ///     scheduler.step(loss);
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CosineAnnealingLR {
     lr: f64,
     eta_0: f64,

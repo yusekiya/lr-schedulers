@@ -46,7 +46,7 @@ use crate::Scheduler;
 ///     scheduler.step(loss);
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LinearLR {
     lr: f64,
     base_lr: f64,

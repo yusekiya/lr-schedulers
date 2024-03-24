@@ -46,7 +46,7 @@ use crate::Scheduler;
 ///     scheduler.step(loss);
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ExponentialLR {
     lr: f64,
     gamma: f64,
