@@ -7,6 +7,7 @@ repository = "https://github.com/yusekiya/lr-schedulers"
 keywords = ["machine-learning"]
 categories = ["science"]
 license = "MIT OR Apache-2.0"
+readme="README.md"
 
 [dependencies]
 
