@@ -1,6 +1,6 @@
 [package]
 name = "lr-schedulers"
-version = "0.1.0-alpha.0"
+version = "0.1.0"
 edition = "2021"
 description = "Learning rate schedulers in Rust."
 repository = "https://github.com/yusekiya/lr-schedulers"
