@@ -2,6 +2,7 @@ pub mod constant;
 pub mod linear;
 pub mod exponential;
 pub mod cosine_annealing;
+pub mod cosine_annealing_warm_restarts;
 
 pub trait Scheduler {
     /// Proceed the step of scheduler.
