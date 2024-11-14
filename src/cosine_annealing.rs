@@ -2,7 +2,7 @@ use crate::Scheduler;
 
 const PI: f64 = std::f64::consts::PI;
 
-/// Change the learning rate periodically.
+/// Changes the learning rate periodically.
 /// 
 /// # Examples
 /// 
@@ -66,7 +66,7 @@ pub struct CosineAnnealingLR {
 }
 
 impl CosineAnnealingLR {
-    /// Construct a CosineAnnealingLR instance.
+    /// Constructs a CosineAnnealingLR instance.
     /// 
     /// This scheduler returns learning rate that oscillates between `eta_0` and `eta_1` with a period of `2*t_max`.
     /// The parameter `t_max` must be larger than 0. When 0 is provided, its value is replaced with 1.

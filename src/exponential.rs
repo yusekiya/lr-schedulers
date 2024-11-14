@@ -1,6 +1,6 @@
 use crate::Scheduler;
 
-/// Change the learning rate geometrically.
+/// Changes the learning rate geometrically.
 /// 
 /// # Examples
 /// 
@@ -55,7 +55,7 @@ pub struct ExponentialLR {
 }
 
 impl ExponentialLR {
-    /// Construct a ExponentialLR instance.
+    /// Constructs a ExponentialLR instance.
     /// 
     /// This scheduler returns learning rate at a step i as
     /// lr_i = `gamma` * lr_{i-1}.

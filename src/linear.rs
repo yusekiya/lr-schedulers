@@ -1,6 +1,6 @@
 use crate::Scheduler;
 
-/// Change the learning rate linearly until the number of steps reaches a given number.
+/// Changes the learning rate linearly until the number of steps reaches a given number.
 /// 
 /// # Examples
 /// 
@@ -60,7 +60,7 @@ pub struct LinearLR {
 }
 
 impl LinearLR {
-    /// Construct a LinearLR instance.
+    /// Constructs a LinearLR instance.
     /// 
     /// This scheduler returns learning rate that interpolates `start_factor * base_lr` and `end_factor * base_lr` when the number of steps is between 0 and `total_iters`.
     /// After that, this returns `end_factor * base_lr`.

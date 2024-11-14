@@ -2,7 +2,7 @@ use crate::Scheduler;
 
 const PI: f64 = std::f64::consts::PI;
 
-/// Change the learning rate periodically with warmups.
+/// Changes the learning rate periodically with warmups.
 /// 
 /// # Examples
 /// 
@@ -77,7 +77,7 @@ pub struct CosineAnnealingWarmRestarts {
 }
 
 impl CosineAnnealingWarmRestarts {
-    /// Construct a CosineAnnealingWarmRestarts instance.
+    /// Constructs a CosineAnnealingWarmRestarts instance.
     /// 
     /// This scheduler returns learning rates that changes from `eta_0` to `eta_1` using a cosine function.
     /// The learning rate is reset to `eta_0` at the beginning of period, hence the name warm restarts.

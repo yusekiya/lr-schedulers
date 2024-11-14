@@ -57,7 +57,7 @@ pub struct ConstantLR {
 }
 
 impl ConstantLR {
-    /// Construct a ConstantLR instance.
+    /// Constructs a ConstantLR instance.
     /// 
     /// This scheduler returns `factor * base_lr` before the number of steps is less than `total_iters`, otherwise, returns `base_lr`.
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
