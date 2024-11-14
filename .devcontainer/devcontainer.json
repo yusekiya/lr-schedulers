@@ -1,6 +1,6 @@
 {
 	"name": "lr-schedulers",
-	"image": "mcr.microsoft.com/devcontainers/rust:1-1-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/rust:1.0-bullseye",
 	"customizations": {
 		"vscode": {
 			"extensions": [
