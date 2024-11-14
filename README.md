@@ -12,6 +12,8 @@ Implemented schedulers:
 
 ## Examples
 
+The following pseudo code shows the usage of this scheduler.
+
 ```rust
 use lr_schedulers::cosine_annealing_warm_restarts::CosineAnnealingWarmRestarts;
 use lr_schedulers::Scheduler;
@@ -25,10 +27,15 @@ let mut scheduler = CosineAnnealingWarmRestarts::new(
     eta_max, eta_min, t_0, t_mult, init_step
 );
 for epoch in 0 .. 100 {
-    let lr = scheduler.get_lr();
-    // Train a model with a larning rate `lr` and calculate loss.
-    let loss = ...
-    scheduler.step(loss);
+    // Calculate loss tensor.
+    let loss = (y - labels).sqr().mean_all();
+    let loss_scalar = loss.to_f64();
+    // Train a model with a larning rate `lr`.
+    let lr = scheduler.get_lr(loss_scalar);
+    let optimizer = Optimizer::new(lr);
+    optimizer.backward_step(&loss);
+    // Then update the scheduler for the next iteration.
+    scheduler.step(loss_scalar);
 }
 ```
 
