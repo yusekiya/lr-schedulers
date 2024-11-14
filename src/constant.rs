@@ -12,8 +12,9 @@ use crate::Scheduler;
 /// let mut scheduler = ConstantLR::new(1.0, 2.0, 2, 0);
 /// let mut learning_rates = Vec::new();
 /// for _ in 0 .. 5 {
-///     learning_rates.push(scheduler.get_lr());
-///     scheduler.step(0.01); // Note: loss value is not used in this scheduler.
+///     // Note: loss value is not used in this scheduler.
+///     learning_rates.push(scheduler.get_lr(0.01));
+///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [2.0, 2.0, 1.0, 1.0, 1.0]);
 /// ```
@@ -27,24 +28,25 @@ use crate::Scheduler;
 /// let mut scheduler = ConstantLR::new(1.0, 2.0, 2, init_step);
 /// let mut learning_rates = Vec::new();
 /// for _ in 0 .. 5 {
-///     learning_rates.push(scheduler.get_lr());
-///     scheduler.step(0.01); // Note: loss value is not used in this scheduler.
+///     // Note: loss value is not used in this scheduler.
+///     learning_rates.push(scheduler.get_lr(0.01));
+///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [2.0, 1.0, 1.0, 1.0, 1.0]);
 /// ```
 /// 
-/// The `step` method should be called after training:
+/// The `get_lr` method returns the same value unless the `step` method is invoked.
 /// 
 /// ```no_run
 /// # use lr_schedulers::constant::ConstantLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = ConstantLR::new(1.0, 2.0, 2, 0);
-/// for epoch in 0 .. 10 {
-///     let lr = scheduler.get_lr();
-///     // Run training with `lr` and calculate loss
-/// #    let loss = 0.001;
-///     scheduler.step(loss);
-/// }
+/// // Note: loss value is not used in this scheduler.
+/// let lr = scheduler.get_lr(0.01);
+/// assert_eq!(lr, scheduler.get_lr(0.01));
+/// scheduler.step(0.01);
+/// let lr = scheduler.get_lr(0.01);
+/// assert_ne!(lr, scheduler.get_lr(0.01));
 /// ```
 #[derive(Debug, Clone)]
 pub struct ConstantLR {
@@ -82,7 +84,7 @@ impl Scheduler for ConstantLR {
         }
     }
 
-    fn get_lr(&self) -> f64 {
+    fn get_lr(&self, _loss: f64) -> f64 {
         self.lr
     }
 }
@@ -103,7 +105,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in 0 .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             if i < total_iters {
                 let expected = factor * base_lr;
                 assert_eq!(lr, expected, "Step {}", i);
@@ -127,7 +129,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in 0 .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             if i < total_iters {
                 let expected = factor * base_lr;
                 assert_eq!(lr, expected, "Step {}", i);
@@ -151,7 +153,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in 0 .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             if i < total_iters {
                 let expected = factor * base_lr;
                 assert_eq!(lr, expected, "Step {}", i);
@@ -175,7 +177,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in 0 .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             let expected = factor * base_lr;
             assert_eq!(lr, expected, "Step {}", i);
             // Proceed a step with dummy loss.
@@ -194,7 +196,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in 0 .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             let expected = base_lr;
             assert_eq!(lr, expected, "Step {}", i);
             // Proceed a step with dummy loss.
@@ -213,7 +215,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in init_step .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             if i < total_iters {
                 let expected = factor * base_lr;
                 assert_eq!(lr, expected, "Step {}", i);
@@ -237,7 +239,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in init_step .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             let expected = base_lr;
             assert_eq!(lr, expected, "Step {}", i);
             // Proceed a step with dummy loss.
@@ -256,7 +258,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in init_step .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             let expected = base_lr;
             assert_eq!(lr, expected, "Step {}", i);
             // Proceed a step with dummy loss.
@@ -275,7 +277,7 @@ mod tests {
             base_lr, factor, total_iters, init_step
         );
         for i in init_step .. total_steps {
-            let lr = scheduler.get_lr();
+            let lr = scheduler.get_lr(0.0);
             let expected = base_lr;
             assert_eq!(lr, expected, "Step {}", i);
             // Proceed a step with dummy loss.
