@@ -4,6 +4,7 @@ pub mod cosine_annealing_warm_restarts;
 pub mod exponential;
 pub mod linear;
 pub mod step;
+pub mod multiplicative;
 
 pub trait Scheduler {
     /// Proceeds the step of scheduler.
