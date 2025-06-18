@@ -1,11 +1,11 @@
 use crate::Scheduler;
 
 /// Multiplies the learning rate by a factor given by a lambda function at each epoch.
-/// 
+///
 /// # Examples
-/// 
+///
 /// This scheduler generates multiplicatively decaying learning rates:
-/// 
+///
 /// ```
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
@@ -18,9 +18,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [1.0, 0.95, 0.9025, 0.857375, 0.81450625]);
 /// ```
-/// 
+///
 /// Custom lambda function with different decay rates:
-/// 
+///
 /// ```
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
@@ -34,9 +34,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [1.0, 0.9, 0.81, 0.729, 0.69255, 0.6579225]);
 /// ```
-/// 
+///
 /// Starting point can be changed with `init_step`:
-/// 
+///
 /// ```
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
@@ -50,9 +50,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [0.9025, 0.857375, 0.81450625]);
 /// ```
-/// 
+///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.
-/// 
+///
 /// ```no_run
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
@@ -79,10 +79,10 @@ where
     F: Fn(usize) -> f64,
 {
     /// Constructs a MultiplicativeLR instance.
-    /// 
+    ///
     /// This scheduler multiplies the learning rate by the factor returned by `lr_lambda` function
     /// at each step. The multiplication is applied to the previous learning rate, not the base learning rate.
-    /// 
+    ///
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
     pub fn new(base_lr: f64, lr_lambda: F, init_step: usize) -> Self {
         let mut lr = base_lr;
@@ -114,8 +114,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::Scheduler;
     use super::*;
+    use crate::Scheduler;
     use approx::assert_relative_eq;
 
     #[test]
@@ -124,9 +124,9 @@ mod tests {
         let lambda = |_| 0.95;
         let init_step = 0;
         let mut scheduler = MultiplicativeLR::new(base_lr, lambda, init_step);
-        
+
         let expected_lrs = [1.0, 0.95, 0.9025, 0.857375, 0.81450625];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
@@ -140,9 +140,9 @@ mod tests {
         let lambda = |epoch| if epoch < 3 { 0.9 } else { 0.95 };
         let init_step = 0;
         let mut scheduler = MultiplicativeLR::new(base_lr, lambda, init_step);
-        
+
         let expected_lrs = [1.0, 0.9, 0.81, 0.729, 0.69255, 0.6579225];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
@@ -156,7 +156,7 @@ mod tests {
         let lambda = |_| 1.0;
         let init_step = 0;
         let mut scheduler = MultiplicativeLR::new(base_lr, lambda, init_step);
-        
+
         for _ in 0..5 {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, base_lr, epsilon = 1e-9, max_relative = 1e-9);
@@ -170,9 +170,9 @@ mod tests {
         let lambda = |_| 1.1;
         let init_step = 0;
         let mut scheduler = MultiplicativeLR::new(base_lr, lambda, init_step);
-        
+
         let expected_lrs = [0.1, 0.11, 0.121, 0.1331, 0.14641];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
@@ -186,10 +186,10 @@ mod tests {
         let lambda = |_| 0.95;
         let init_step = 2;
         let mut scheduler = MultiplicativeLR::new(base_lr, lambda, init_step);
-        
+
         // At init_step=2, lr should be 1.0 * 0.95 * 0.95 = 0.9025
         let expected_lrs = [0.9025, 0.857375, 0.81450625];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
@@ -202,21 +202,21 @@ mod tests {
         let base_lr = 1.0;
         let lambda = |epoch| {
             if epoch % 3 == 0 {
-                0.5  // Large decay every 3 epochs
+                0.5 // Large decay every 3 epochs
             } else {
-                0.9  // Small decay otherwise
+                0.9 // Small decay otherwise
             }
         };
         let init_step = 0;
         let mut scheduler = MultiplicativeLR::new(base_lr, lambda, init_step);
-        
+
         // epoch 0: 1.0 * 0.5 = 0.5
         // epoch 1: 0.5 * 0.9 = 0.45
         // epoch 2: 0.45 * 0.9 = 0.405
         // epoch 3: 0.405 * 0.5 = 0.2025
         // epoch 4: 0.2025 * 0.9 = 0.18225
         let expected_lrs = [1.0, 0.5, 0.45, 0.405, 0.2025, 0.18225];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
@@ -230,7 +230,7 @@ mod tests {
         let lambda = |epoch| if epoch < 2 { 0.8 } else { 0.9 };
         let init_step = 3;
         let mut scheduler = MultiplicativeLR::new(base_lr, lambda, init_step);
-        
+
         // Apply lambda for epochs 0, 1, 2
         // epoch 0: 1.0 * 0.8 = 0.8
         // epoch 1: 0.8 * 0.8 = 0.64
@@ -238,7 +238,7 @@ mod tests {
         // So at init_step=3, lr = 0.576
         let lr = scheduler.get_lr(0.0);
         assert_relative_eq!(lr, 0.576, epsilon = 1e-9, max_relative = 1e-9);
-        
+
         // Next steps should use lambda(3) = 0.9, lambda(4) = 0.9, ...
         scheduler.step(0.0);
         let lr = scheduler.get_lr(0.0);
