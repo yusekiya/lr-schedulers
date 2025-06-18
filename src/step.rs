@@ -1,11 +1,11 @@
 use crate::Scheduler;
 
 /// Decays the learning rate by gamma every step_size epochs.
-/// 
+///
 /// # Examples
-/// 
+///
 /// This scheduler generates step-wise decaying learning rates:
-/// 
+///
 /// ```
 /// # use lr_schedulers::step::StepLR;
 /// # use lr_schedulers::Scheduler;
@@ -18,9 +18,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01, 0.001]);
 /// ```
-/// 
+///
 /// Starting point can be changed with `init_step`:
-/// 
+///
 /// ```
 /// # use lr_schedulers::step::StepLR;
 /// # use lr_schedulers::Scheduler;
@@ -34,9 +34,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [1.0, 0.1, 0.1, 0.1, 0.01]);
 /// ```
-/// 
+///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.
-/// 
+///
 /// ```no_run
 /// # use lr_schedulers::step::StepLR;
 /// # use lr_schedulers::Scheduler;
@@ -59,11 +59,11 @@ pub struct StepLR {
 
 impl StepLR {
     /// Constructs a StepLR instance.
-    /// 
+    ///
     /// This scheduler returns learning rate that is decayed by `gamma` every `step_size` epochs.
     /// For epoch n, the learning rate is calculated as:
     /// lr = base_lr * gamma^(floor(n / step_size))
-    /// 
+    ///
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
     pub fn new(base_lr: f64, step_size: usize, gamma: f64, init_step: usize) -> Self {
         let lr = base_lr * gamma.powi((init_step / step_size) as i32);
@@ -90,8 +90,8 @@ impl Scheduler for StepLR {
 
 #[cfg(test)]
 mod tests {
-    use crate::Scheduler;
     use super::*;
+    use crate::Scheduler;
     use approx::assert_relative_eq;
 
     #[test]
@@ -101,9 +101,9 @@ mod tests {
         let gamma = 0.1;
         let init_step = 0;
         let mut scheduler = StepLR::new(base_lr, step_size, gamma, init_step);
-        
+
         let expected_lrs = [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01, 0.001];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             // Proceed a step with dummy loss.
@@ -118,9 +118,9 @@ mod tests {
         let gamma = 0.1;
         let init_step = 2;
         let mut scheduler = StepLR::new(base_lr, step_size, gamma, init_step);
-        
+
         let expected_lrs = [1.0, 0.1, 0.1, 0.1, 0.01];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             // Proceed a step with dummy loss.
@@ -135,9 +135,9 @@ mod tests {
         let gamma = 0.1;
         let init_step = 3;
         let mut scheduler = StepLR::new(base_lr, step_size, gamma, init_step);
-        
+
         let expected_lrs = [0.1, 0.1, 0.1, 0.01, 0.01];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             // Proceed a step with dummy loss.
@@ -152,9 +152,9 @@ mod tests {
         let gamma = 0.5;
         let init_step = 0;
         let mut scheduler = StepLR::new(base_lr, step_size, gamma, init_step);
-        
+
         let expected_lrs = [1.0, 0.5, 0.25, 0.125, 0.0625];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             // Proceed a step with dummy loss.
@@ -169,14 +169,14 @@ mod tests {
         let gamma = 0.1;
         let init_step = 0;
         let mut scheduler = StepLR::new(base_lr, step_size, gamma, init_step);
-        
+
         // Learning rate should remain constant for the first 100 steps
-        for _ in 0 .. 100 {
+        for _ in 0..100 {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, base_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
-        
+
         // After 100 steps, learning rate should be decayed
         let lr = scheduler.get_lr(0.0);
         assert_relative_eq!(lr, base_lr * gamma, epsilon = 1e-10, max_relative = 1e-10);
@@ -189,9 +189,9 @@ mod tests {
         let gamma = 2.0;
         let init_step = 0;
         let mut scheduler = StepLR::new(base_lr, step_size, gamma, init_step);
-        
+
         let expected_lrs = [0.1, 0.1, 0.2, 0.2, 0.4];
-        for (_i, exp_lr) in expected_lrs.iter().enumerate() {
+        for exp_lr in expected_lrs.iter() {
             let lr = scheduler.get_lr(0.0);
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             // Proceed a step with dummy loss.
@@ -206,15 +206,16 @@ mod tests {
         let gamma = 0.1;
         let init_step = 7;
         let mut scheduler = StepLR::new(base_lr, step_size, gamma, init_step);
-        
+
         // At init_step=7, we should have decayed floor(7/2)=3 times
         // So lr = 1.0 * 0.1^3 = 0.001
         let lr = scheduler.get_lr(0.0);
         assert_relative_eq!(lr, 0.001, epsilon = 1e-10, max_relative = 1e-10);
-        
+
         // Step 8 (still in the same decay period)
         scheduler.step(0.0);
         let lr = scheduler.get_lr(0.0);
         assert_relative_eq!(lr, 0.0001, epsilon = 1e-10, max_relative = 1e-10);
     }
 }
+
