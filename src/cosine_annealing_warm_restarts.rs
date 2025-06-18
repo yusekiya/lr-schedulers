@@ -3,11 +3,11 @@ use crate::Scheduler;
 const PI: f64 = std::f64::consts::PI;
 
 /// Changes the learning rate periodically with warmups.
-/// 
+///
 /// # Examples
-/// 
+///
 /// This scheduler generates periodically changing learning rates with warmups:
-/// 
+///
 /// ```
 /// # use lr_schedulers::cosine_annealing_warm_restarts::CosineAnnealingWarmRestarts;
 /// # use lr_schedulers::Scheduler;
@@ -23,9 +23,9 @@ const PI: f64 = std::f64::consts::PI;
 ///     assert!((target - expected).abs() < 1e-10);
 /// }
 /// ```
-/// 
+///
 /// The length of period is multiplied by `t_mult` after every warm restarts:
-/// 
+///
 /// ```
 /// # use lr_schedulers::cosine_annealing_warm_restarts::CosineAnnealingWarmRestarts;
 /// # use lr_schedulers::Scheduler;
@@ -52,9 +52,9 @@ const PI: f64 = std::f64::consts::PI;
 ///     assert!((target - expected).abs() < 1e-10);
 /// }
 /// ```
-/// 
+///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.
-/// 
+///
 /// ```no_run
 /// # use lr_schedulers::cosine_annealing_warm_restarts::CosineAnnealingWarmRestarts;
 /// # use lr_schedulers::Scheduler;
@@ -78,19 +78,13 @@ pub struct CosineAnnealingWarmRestarts {
 
 impl CosineAnnealingWarmRestarts {
     /// Constructs a CosineAnnealingWarmRestarts instance.
-    /// 
+    ///
     /// This scheduler returns learning rates that changes from `eta_0` to `eta_1` using a cosine function.
     /// The learning rate is reset to `eta_0` at the beginning of period, hence the name warm restarts.
     /// The length of period is given by `t_0`, and the period is multiplied by `t_mult` after every warm restarts.
     /// The parameters `t_0` and `t_mult` must be larger than 0. When 0 is provided, their values are replaced with 1.
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
-    pub fn new(
-        eta_0: f64,
-        eta_1: f64,
-        t_0: usize,
-        t_mult: usize,
-        init_step: usize,
-    ) -> Self {
+    pub fn new(eta_0: f64, eta_1: f64, t_0: usize, t_mult: usize, init_step: usize) -> Self {
         // When t_mult = 0 is given, replace it to 1 to prevent infinite loop.
         let t_mult = t_mult.max(1);
         // Aboid t_0 = 0 for the same reason as above.
@@ -108,7 +102,14 @@ impl CosineAnnealingWarmRestarts {
             let lr = (eta_0 - eta_1).mul_add(periodic_factor, eta_1);
             (lr, step, t_max)
         };
-        CosineAnnealingWarmRestarts { lr, eta_0, eta_1, step_cur, t_max, t_mult }
+        CosineAnnealingWarmRestarts {
+            lr,
+            eta_0,
+            eta_1,
+            step_cur,
+            t_max,
+            t_mult,
+        }
     }
 }
 
@@ -135,9 +136,9 @@ fn periodic_factor(t: usize, t_max: usize) -> f64 {
 
 #[cfg(test)]
 mod tests {
-    use approx::relative_eq;
-    use crate::Scheduler;
     use super::*;
+    use crate::Scheduler;
+    use approx::relative_eq;
 
     #[test]
     fn decrease_first_lr() {
@@ -146,13 +147,17 @@ mod tests {
         let t_0 = 2;
         let t_mult = 1;
         let init_step = 0;
-        let mut scheduler = CosineAnnealingWarmRestarts::new(
-            eta_0, eta_1, t_0, t_mult, init_step
-        );
+        let mut scheduler = CosineAnnealingWarmRestarts::new(eta_0, eta_1, t_0, t_mult, init_step);
         let expected_lrs = [1.0, 0.5, 0.0, 1.0, 0.5, 0.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.01);
-            assert!(relative_eq!(lr, *exp_lr), "Step {}: left: {}, right: {}", i, lr, *exp_lr);
+            assert!(
+                relative_eq!(lr, *exp_lr),
+                "Step {}: left: {}, right: {}",
+                i,
+                lr,
+                *exp_lr
+            );
             // Process a step with dummy loss
             scheduler.step(0.0);
         }
@@ -165,22 +170,26 @@ mod tests {
         let t_0 = 2;
         let t_mult = 2;
         let init_step = 0;
-        let mut scheduler = CosineAnnealingWarmRestarts::new(
-            eta_0, eta_1, t_0, t_mult, init_step
-        );
+        let mut scheduler = CosineAnnealingWarmRestarts::new(eta_0, eta_1, t_0, t_mult, init_step);
         let expected_lrs = [
             1.0,
             0.5,
             0.0,
             1.0,
-            (1.0 + 1.0/2.0f64.sqrt())/2.0,
+            (1.0 + 1.0 / 2.0f64.sqrt()) / 2.0,
             0.5,
-            (1.0 - 1.0/2.0f64.sqrt())/2.0,
-            0.0
+            (1.0 - 1.0 / 2.0f64.sqrt()) / 2.0,
+            0.0,
         ];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.01);
-            assert!(relative_eq!(lr, *exp_lr), "Step {}: left: {}, right: {}", i, lr, *exp_lr);
+            assert!(
+                relative_eq!(lr, *exp_lr),
+                "Step {}: left: {}, right: {}",
+                i,
+                lr,
+                *exp_lr
+            );
             // Process a step with dummy loss
             scheduler.step(0.0);
         }
@@ -193,13 +202,17 @@ mod tests {
         let t_0 = 2;
         let t_mult = 1;
         let init_step = 2;
-        let mut scheduler = CosineAnnealingWarmRestarts::new(
-            eta_0, eta_1, t_0, t_mult, init_step
-        );
+        let mut scheduler = CosineAnnealingWarmRestarts::new(eta_0, eta_1, t_0, t_mult, init_step);
         let expected_lrs = [0.0, 1.0, 0.5, 0.0, 1.0, 0.5];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.01);
-            assert!(relative_eq!(lr, *exp_lr), "Step {}: left: {}, right: {}", i, lr, *exp_lr);
+            assert!(
+                relative_eq!(lr, *exp_lr),
+                "Step {}: left: {}, right: {}",
+                i,
+                lr,
+                *exp_lr
+            );
             // Process a step with dummy loss
             scheduler.step(0.0);
         }

@@ -1,11 +1,11 @@
 use crate::Scheduler;
 
 /// Changes the learning rate linearly until the number of steps reaches a given number.
-/// 
+///
 /// # Examples
-/// 
+///
 /// This scheduler generates linearly changing learning rates until a certain number of steps:
-/// 
+///
 /// ```
 /// # use lr_schedulers::linear::LinearLR;
 /// # use lr_schedulers::Scheduler;
@@ -18,9 +18,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [2.0, 1.25, 0.5, 0.5, 0.5]);
 /// ```
-/// 
+///
 /// Starting point can be changed with `init_step`:
-/// 
+///
 /// ```
 /// # use lr_schedulers::linear::LinearLR;
 /// # use lr_schedulers::Scheduler;
@@ -34,9 +34,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [1.25, 0.5, 0.5, 0.5, 0.5]);
 /// ```
-/// 
+///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.
-/// 
+///
 /// ```no_run
 /// # use lr_schedulers::linear::LinearLR;
 /// # use lr_schedulers::Scheduler;
@@ -61,7 +61,7 @@ pub struct LinearLR {
 
 impl LinearLR {
     /// Constructs a LinearLR instance.
-    /// 
+    ///
     /// This scheduler returns learning rate that interpolates `start_factor * base_lr` and `end_factor * base_lr` when the number of steps is between 0 and `total_iters`.
     /// After that, this returns `end_factor * base_lr`.
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
@@ -70,7 +70,7 @@ impl LinearLR {
         start_factor: f64,
         end_factor: f64,
         total_iters: usize,
-        init_step: usize
+        init_step: usize,
     ) -> Self {
         if init_step >= total_iters {
             LinearLR {
@@ -126,8 +126,8 @@ impl Scheduler for LinearLR {
 
 #[cfg(test)]
 mod tests {
-    use crate::Scheduler;
     use super::*;
+    use crate::Scheduler;
 
     #[test]
     fn decrease_lr() {
@@ -136,9 +136,8 @@ mod tests {
         let end_factor = 0.5;
         let total_iters = 2;
         let init_step = 0;
-        let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_step
-        );
+        let mut scheduler =
+            LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [2.0, 1.25, 0.5, 0.5, 0.5];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
@@ -155,9 +154,8 @@ mod tests {
         let end_factor = 2.0;
         let total_iters = 2;
         let init_step = 0;
-        let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_step
-        );
+        let mut scheduler =
+            LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [0.5, 1.25, 2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
@@ -174,9 +172,8 @@ mod tests {
         let end_factor = 2.0;
         let total_iters = 2;
         let init_step = 1;
-        let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_step
-        );
+        let mut scheduler =
+            LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [1.25, 2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
@@ -193,9 +190,8 @@ mod tests {
         let end_factor = 2.0;
         let total_iters = 2;
         let init_step = 3;
-        let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_step
-        );
+        let mut scheduler =
+            LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
@@ -212,9 +208,8 @@ mod tests {
         let end_factor = 2.0;
         let total_iters = 2;
         let init_step = 2;
-        let mut scheduler = LinearLR::new(
-            base_lr, start_factor, end_factor, total_iters, init_step
-        );
+        let mut scheduler =
+            LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);

@@ -1,11 +1,11 @@
 use crate::Scheduler;
 
 /// Changes the learning rate geometrically.
-/// 
+///
 /// # Examples
-/// 
+///
 /// This scheduler generates geometrically changing learning rates:
-/// 
+///
 /// ```
 /// # use lr_schedulers::exponential::ExponentialLR;
 /// # use lr_schedulers::Scheduler;
@@ -18,9 +18,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [2.0, 1.0, 0.5, 0.25, 0.125]);
 /// ```
-/// 
+///
 /// Starting point can be changed with `init_step`:
-/// 
+///
 /// ```
 /// # use lr_schedulers::exponential::ExponentialLR;
 /// # use lr_schedulers::Scheduler;
@@ -34,9 +34,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [1.0, 0.5, 0.25, 0.125, 0.0625]);
 /// ```
-/// 
+///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.
-/// 
+///
 /// ```no_run
 /// # use lr_schedulers::exponential::ExponentialLR;
 /// # use lr_schedulers::Scheduler;
@@ -56,10 +56,10 @@ pub struct ExponentialLR {
 
 impl ExponentialLR {
     /// Constructs a ExponentialLR instance.
-    /// 
+    ///
     /// This scheduler returns learning rate at a step i as
     /// lr_i = `gamma` * lr_{i-1}.
-    /// 
+    ///
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
     pub fn new(base_lr: f64, gamma: f64, init_step: usize) -> Self {
         let lr = base_lr * gamma.powi(init_step as i32);
@@ -79,17 +79,15 @@ impl Scheduler for ExponentialLR {
 
 #[cfg(test)]
 mod tests {
-    use crate::Scheduler;
     use super::*;
+    use crate::Scheduler;
 
     #[test]
     fn decrease_lr() {
         let base_lr = 2.0;
         let gamma = 0.5;
         let init_step = 0;
-        let mut scheduler = ExponentialLR::new(
-            base_lr, gamma, init_step
-        );
+        let mut scheduler = ExponentialLR::new(base_lr, gamma, init_step);
         let expected_lrs = [2.0, 1.0, 0.5, 0.25, 0.125];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
@@ -104,9 +102,7 @@ mod tests {
         let base_lr = 2.0;
         let gamma = 0.5;
         let init_step = 2;
-        let mut scheduler = ExponentialLR::new(
-            base_lr, gamma, init_step
-        );
+        let mut scheduler = ExponentialLR::new(base_lr, gamma, init_step);
         let expected_lrs = [0.5, 0.25, 0.125, 0.0625];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);

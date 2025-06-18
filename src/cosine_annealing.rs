@@ -3,11 +3,11 @@ use crate::Scheduler;
 const PI: f64 = std::f64::consts::PI;
 
 /// Changes the learning rate periodically.
-/// 
+///
 /// # Examples
-/// 
+///
 /// This scheduler generates periodically changing learning rates:
-/// 
+///
 /// ```
 /// # use lr_schedulers::cosine_annealing::CosineAnnealingLR;
 /// # use lr_schedulers::Scheduler;
@@ -23,9 +23,9 @@ const PI: f64 = std::f64::consts::PI;
 ///     assert!((target - expected).abs() < 1e-10);
 /// }
 /// ```
-/// 
+///
 /// Starting point can be changed with `init_step`:
-/// 
+///
 /// ```
 /// # use lr_schedulers::cosine_annealing::CosineAnnealingLR;
 /// # use lr_schedulers::Scheduler;
@@ -42,9 +42,9 @@ const PI: f64 = std::f64::consts::PI;
 ///     assert!((target - expected).abs() < 1e-10);
 /// }
 /// ```
-/// 
+///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.
-/// 
+///
 /// ```no_run
 /// # use lr_schedulers::cosine_annealing::CosineAnnealingLR;
 /// # use lr_schedulers::Scheduler;
@@ -67,16 +67,11 @@ pub struct CosineAnnealingLR {
 
 impl CosineAnnealingLR {
     /// Constructs a CosineAnnealingLR instance.
-    /// 
+    ///
     /// This scheduler returns learning rate that oscillates between `eta_0` and `eta_1` with a period of `2*t_max`.
     /// The parameter `t_max` must be larger than 0. When 0 is provided, its value is replaced with 1.
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
-    pub fn new(
-        eta_0: f64,
-        eta_1: f64,
-        t_max: usize,
-        init_step: usize,
-    ) -> Self {
+    pub fn new(eta_0: f64, eta_1: f64, t_max: usize, init_step: usize) -> Self {
         let t_max = t_max.max(1);
         let lr = if init_step == 0 {
             eta_0
@@ -84,7 +79,13 @@ impl CosineAnnealingLR {
             let periodic_factor = periodic_factor(init_step, t_max);
             (eta_0 - eta_1).mul_add(periodic_factor, eta_1)
         };
-        CosineAnnealingLR { lr, eta_0, eta_1, step: init_step, t_max }
+        CosineAnnealingLR {
+            lr,
+            eta_0,
+            eta_1,
+            step: init_step,
+            t_max,
+        }
     }
 }
 
@@ -101,16 +102,16 @@ impl Scheduler for CosineAnnealingLR {
 }
 
 fn periodic_factor(t: usize, t_max: usize) -> f64 {
-    let r = t.rem_euclid(2*t_max);
+    let r = t.rem_euclid(2 * t_max);
     let phase = (r as f64) * PI / (t_max as f64);
     0.5 * (1.0 + phase.cos())
 }
 
 #[cfg(test)]
 mod tests {
-    use approx::relative_eq;
-    use crate::Scheduler;
     use super::*;
+    use crate::Scheduler;
+    use approx::relative_eq;
 
     #[test]
     fn decrease_first_lr() {
@@ -118,13 +119,17 @@ mod tests {
         let eta_1 = 0.0;
         let t_max = 2;
         let init_step = 0;
-        let mut scheduler = CosineAnnealingLR::new(
-            eta_0, eta_1, t_max, init_step
-        );
+        let mut scheduler = CosineAnnealingLR::new(eta_0, eta_1, t_max, init_step);
         let expected_lrs = [1.0, 0.5, 0.0, 0.5, 1.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
-            assert!(relative_eq!(lr, *exp_lr), "Step {}: left: {}, right: {}", i, lr, *exp_lr);
+            assert!(
+                relative_eq!(lr, *exp_lr),
+                "Step {}: left: {}, right: {}",
+                i,
+                lr,
+                *exp_lr
+            );
             // Process a step with dummy loss
             scheduler.step(0.0);
         }
@@ -136,13 +141,17 @@ mod tests {
         let eta_1 = 1.0;
         let t_max = 2;
         let init_step = 0;
-        let mut scheduler = CosineAnnealingLR::new(
-            eta_0, eta_1, t_max, init_step
-        );
+        let mut scheduler = CosineAnnealingLR::new(eta_0, eta_1, t_max, init_step);
         let expected_lrs = [0.0, 0.5, 1.0, 0.5, 0.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
-            assert!(relative_eq!(lr, *exp_lr), "Step {}: left: {}, right: {}", i, lr, *exp_lr);
+            assert!(
+                relative_eq!(lr, *exp_lr),
+                "Step {}: left: {}, right: {}",
+                i,
+                lr,
+                *exp_lr
+            );
             // Process a step with dummy loss
             scheduler.step(0.0);
         }
@@ -154,13 +163,17 @@ mod tests {
         let eta_1 = 0.0;
         let t_max = 2;
         let init_step = 1;
-        let mut scheduler = CosineAnnealingLR::new(
-            eta_0, eta_1, t_max, init_step
-        );
+        let mut scheduler = CosineAnnealingLR::new(eta_0, eta_1, t_max, init_step);
         let expected_lrs = [0.5, 0.0, 0.5, 1.0, 0.5];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
-            assert!(relative_eq!(lr, *exp_lr), "Step {}: left: {}, right: {}", i, lr, *exp_lr);
+            assert!(
+                relative_eq!(lr, *exp_lr),
+                "Step {}: left: {}, right: {}",
+                i,
+                lr,
+                *exp_lr
+            );
             // Process a step with dummy loss
             scheduler.step(0.0);
         }
@@ -173,13 +186,17 @@ mod tests {
         let eta_1 = 0.0;
         let t_max = 2;
         let init_step = 0;
-        let mut scheduler = CosineAnnealingLR::new(
-            eta_0, eta_1, t_max, init_step
-        );
+        let mut scheduler = CosineAnnealingLR::new(eta_0, eta_1, t_max, init_step);
         let expected_lrs = [1.0, 0.5, 0.0, 0.5].repeat(repeat);
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
             let lr = scheduler.get_lr(0.0);
-            assert!(relative_eq!(lr, *exp_lr), "Step {}: left: {}, right: {}", i, lr, *exp_lr);
+            assert!(
+                relative_eq!(lr, *exp_lr),
+                "Step {}: left: {}, right: {}",
+                i,
+                lr,
+                *exp_lr
+            );
             // Process a step with dummy loss
             scheduler.step(0.0);
         }

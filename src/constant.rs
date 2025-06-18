@@ -1,11 +1,11 @@
 use crate::Scheduler;
 
 /// Decays the learning rate by a constant factor until the number of steps reaches a given number.
-/// 
+///
 /// # Examples
-/// 
+///
 /// This scheduler generates modified learning rates until a certain number of steps:
-/// 
+///
 /// ```
 /// # use lr_schedulers::constant::ConstantLR;
 /// # use lr_schedulers::Scheduler;
@@ -18,9 +18,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [2.0, 2.0, 1.0, 1.0, 1.0]);
 /// ```
-/// 
+///
 /// Starting point can be changed with `init_step`:
-/// 
+///
 /// ```
 /// # use lr_schedulers::constant::ConstantLR;
 /// # use lr_schedulers::Scheduler;
@@ -34,9 +34,9 @@ use crate::Scheduler;
 /// }
 /// assert_eq!(learning_rates, [2.0, 1.0, 1.0, 1.0, 1.0]);
 /// ```
-/// 
+///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.
-/// 
+///
 /// ```no_run
 /// # use lr_schedulers::constant::ConstantLR;
 /// # use lr_schedulers::Scheduler;
@@ -58,7 +58,7 @@ pub struct ConstantLR {
 
 impl ConstantLR {
     /// Constructs a ConstantLR instance.
-    /// 
+    ///
     /// This scheduler returns `factor * base_lr` before the number of steps is less than `total_iters`, otherwise, returns `base_lr`.
     /// Starting step can be specified by `init_step`. Use `init_step=0` to train a model from the beginning.
     pub fn new(base_lr: f64, factor: f64, total_iters: usize, init_step: usize) -> Self {
@@ -91,8 +91,8 @@ impl Scheduler for ConstantLR {
 
 #[cfg(test)]
 mod tests {
-    use crate::Scheduler;
     use super::*;
+    use crate::Scheduler;
 
     #[test]
     fn middle_step() {
@@ -101,10 +101,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 2;
         let init_step = 0;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in 0 .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in 0..total_steps {
             let lr = scheduler.get_lr(0.0);
             if i < total_iters {
                 let expected = factor * base_lr;
@@ -125,10 +123,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 1;
         let init_step = 0;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in 0 .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in 0..total_steps {
             let lr = scheduler.get_lr(0.0);
             if i < total_iters {
                 let expected = factor * base_lr;
@@ -149,10 +145,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 4;
         let init_step = 0;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in 0 .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in 0..total_steps {
             let lr = scheduler.get_lr(0.0);
             if i < total_iters {
                 let expected = factor * base_lr;
@@ -173,10 +167,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 10;
         let init_step = 0;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in 0 .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in 0..total_steps {
             let lr = scheduler.get_lr(0.0);
             let expected = factor * base_lr;
             assert_eq!(lr, expected, "Step {}", i);
@@ -184,7 +176,7 @@ mod tests {
             scheduler.step(0.0);
         }
     }
- 
+
     #[test]
     fn fixed_lr() {
         let total_steps = 5;
@@ -192,10 +184,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 0;
         let init_step = 0;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in 0 .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in 0..total_steps {
             let lr = scheduler.get_lr(0.0);
             let expected = base_lr;
             assert_eq!(lr, expected, "Step {}", i);
@@ -211,10 +201,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 2;
         let init_step = 1;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in init_step .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in init_step..total_steps {
             let lr = scheduler.get_lr(0.0);
             if i < total_iters {
                 let expected = factor * base_lr;
@@ -235,10 +223,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 2;
         let init_step = 3;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in init_step .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in init_step..total_steps {
             let lr = scheduler.get_lr(0.0);
             let expected = base_lr;
             assert_eq!(lr, expected, "Step {}", i);
@@ -254,10 +240,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 2;
         let init_step = 2;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in init_step .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in init_step..total_steps {
             let lr = scheduler.get_lr(0.0);
             let expected = base_lr;
             assert_eq!(lr, expected, "Step {}", i);
@@ -265,7 +249,7 @@ mod tests {
             scheduler.step(0.0);
         }
     }
- 
+
     #[test]
     fn fixed_lr_with_init_step() {
         let total_steps = 5;
@@ -273,10 +257,8 @@ mod tests {
         let factor = 0.1;
         let total_iters = 0;
         let init_step = 2;
-        let mut scheduler = ConstantLR::new(
-            base_lr, factor, total_iters, init_step
-        );
-        for i in init_step .. total_steps {
+        let mut scheduler = ConstantLR::new(base_lr, factor, total_iters, init_step);
+        for i in init_step..total_steps {
             let lr = scheduler.get_lr(0.0);
             let expected = base_lr;
             assert_eq!(lr, expected, "Step {}", i);

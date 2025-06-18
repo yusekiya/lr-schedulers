@@ -218,4 +218,3 @@ mod tests {
         assert_relative_eq!(lr, 0.0001, epsilon = 1e-10, max_relative = 1e-10);
     }
 }
-
