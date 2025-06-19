@@ -4,6 +4,7 @@ pub mod cosine_annealing_warm_restarts;
 pub mod exponential;
 pub mod linear;
 pub mod multiplicative;
+pub mod multistep;
 pub mod step;
 
 pub trait Scheduler {
