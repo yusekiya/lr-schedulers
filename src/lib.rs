@@ -6,6 +6,7 @@ pub mod linear;
 pub mod multiplicative;
 pub mod multistep;
 pub mod step;
+pub mod polynomial;
 
 pub trait Scheduler {
     /// Proceeds the step of scheduler.
