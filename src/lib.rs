@@ -6,6 +6,7 @@ pub mod linear;
 pub mod multiplicative;
 pub mod multistep;
 pub mod polynomial;
+pub mod reduce_lr_on_plateau;
 pub mod step;
 
 pub trait Scheduler {
