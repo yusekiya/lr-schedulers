@@ -1,53 +1,55 @@
+//! Reduces learning rate when a metric has stopped improving.
+//!
+//! # Examples
+//!
+//! This scheduler monitors loss and reduces learning rate when no improvement is seen:
+//!
+//! ```
+//! # use lr_schedulers::reduce_lr_on_plateau::{ReduceLROnPlateau, Mode, ThresholdMode};
+//! # use lr_schedulers::Scheduler;
+//! let mut scheduler = ReduceLROnPlateau::new(0.1, Mode::Min, 0.5, 2, 0.001, ThresholdMode::Abs, 0, 0.0, 1e-8);
+//!
+//! // Simulate training with decreasing loss
+//! scheduler.step(1.0); // loss=1.0, lr remains 0.1
+//! scheduler.step(0.8); // loss=0.8, improvement, lr remains 0.1
+//! scheduler.step(0.85); // loss=0.85, no improvement (1/2)
+//! scheduler.step(0.82); // loss=0.82, no improvement (2/2), the first two epochs without improvement are ignored
+//! scheduler.step(0.81); // loss=0.81, no improvement
+//! // lr is now reduced to 0.05
+//!
+//! assert_eq!(scheduler.get_lr(0.0), 0.05);
+//! ```
+//!
+//! Different modes for different metrics:
+//!
+//! ```
+//! # use lr_schedulers::reduce_lr_on_plateau::{ReduceLROnPlateau, Mode, ThresholdMode};
+//! # use lr_schedulers::Scheduler;
+//! // For accuracy (higher is better)
+//! let mut scheduler = ReduceLROnPlateau::new(0.1, Mode::Max, 0.1, 3, 0.01, ThresholdMode::Rel, 0, 0.0, 1e-8);
+//!
+//! scheduler.step(0.8); // accuracy=0.8
+//! scheduler.step(0.85); // accuracy=0.85, improvement
+//! scheduler.step(0.84); // accuracy=0.84, no improvement (1/3)
+//! assert_eq!(scheduler.get_lr(0.0), 0.1); // lr not reduced yet
+//! ```
+//!
+//! Cooldown prevents immediate consecutive reductions:
+//!
+//! ```
+//! # use lr_schedulers::reduce_lr_on_plateau::{ReduceLROnPlateau, Mode, ThresholdMode};
+//! # use lr_schedulers::Scheduler;
+//! let mut scheduler = ReduceLROnPlateau::new(0.1, Mode::Min, 0.5, 1, 0.0, ThresholdMode::Abs, 2, 0.0, 1e-8);
+//!
+//! scheduler.step(1.0); // loss=1.0
+//! scheduler.step(1.1); // loss=1.1, no improvement, lr reduced to 0.05
+//! scheduler.step(1.2); // loss=1.2, in cooldown, no further reduction
+//! scheduler.step(1.3); // loss=1.3, still in cooldown
+//! scheduler.step(1.4); // loss=1.4, cooldown over, bad epochs start counting again
+//! ```
+
 use crate::Scheduler;
 
-/// Reduces learning rate when a metric has stopped improving.
-/// 
-/// # Examples
-/// 
-/// This scheduler monitors loss and reduces learning rate when no improvement is seen:
-/// 
-/// ```
-/// # use lr_schedulers::reduce_lr_on_plateau::{ReduceLROnPlateau, Mode, ThresholdMode};
-/// # use lr_schedulers::Scheduler;
-/// let mut scheduler = ReduceLROnPlateau::new(0.1, Mode::Min, 0.5, 2, 0.001, ThresholdMode::Abs, 0, 0.0, 1e-8);
-/// 
-/// // Simulate training with decreasing loss
-/// scheduler.step(1.0); // loss=1.0, lr remains 0.1
-/// scheduler.step(0.8); // loss=0.8, improvement, lr remains 0.1
-/// scheduler.step(0.85); // loss=0.85, no improvement (1/2)
-/// scheduler.step(0.82); // loss=0.82, no improvement (2/2)
-/// // lr is now reduced to 0.05
-/// 
-/// assert_eq!(scheduler.get_lr(0.0), 0.05);
-/// ```
-/// 
-/// Different modes for different metrics:
-/// 
-/// ```
-/// # use lr_schedulers::reduce_lr_on_plateau::{ReduceLROnPlateau, Mode, ThresholdMode};
-/// # use lr_schedulers::Scheduler;
-/// // For accuracy (higher is better)
-/// let mut scheduler = ReduceLROnPlateau::new(0.1, Mode::Max, 0.1, 3, 0.01, ThresholdMode::Rel, 0, 0.0, 1e-8);
-/// 
-/// scheduler.step(0.8); // accuracy=0.8
-/// scheduler.step(0.85); // accuracy=0.85, improvement
-/// scheduler.step(0.84); // accuracy=0.84, no improvement (1/3)
-/// assert_eq!(scheduler.get_lr(0.0), 0.1); // lr not reduced yet
-/// ```
-/// 
-/// Cooldown prevents immediate consecutive reductions:
-/// 
-/// ```
-/// # use lr_schedulers::reduce_lr_on_plateau::{ReduceLROnPlateau, Mode, ThresholdMode};
-/// # use lr_schedulers::Scheduler;
-/// let mut scheduler = ReduceLROnPlateau::new(0.1, Mode::Min, 0.5, 1, 0.0, ThresholdMode::Abs, 2, 0.0, 1e-8);
-/// 
-/// scheduler.step(1.0); // loss=1.0
-/// scheduler.step(1.1); // loss=1.1, no improvement, lr reduced to 0.05
-/// scheduler.step(1.2); // loss=1.2, in cooldown, no further reduction
-/// scheduler.step(1.3); // loss=1.3, still in cooldown
-/// scheduler.step(1.4); // loss=1.4, cooldown over, bad epochs start counting again
-/// ```
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Mode {
     Min,
