@@ -52,6 +52,7 @@
 //! ```
 //! # use lr_schedulers::cyclic::{CyclicLR, Mode, ScaleMode};
 //! # use lr_schedulers::Scheduler;
+//! # use std::f64::consts::PI;
 //! let custom_fn = |x: f64| 0.5 * (1.0 + (PI * x).cos());
 //! let mut scheduler = CyclicLR::new(0.01, 0.1, 4, None, Mode::Triangular, 1.0, Some((custom_fn, ScaleMode::Cycle)));
 //! let mut learning_rates = Vec::new();
@@ -63,7 +64,6 @@
 //! ```
 
 use crate::Scheduler;
-use std::f64::consts::PI;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Mode {
@@ -83,6 +83,7 @@ pub struct CyclicLR<F>
 where
     F: Fn(f64) -> f64,
 {
+    lr: f64,
     base_lr: f64,
     max_lr: f64,
     step_size_up: usize,
@@ -117,6 +118,7 @@ impl CyclicLR<fn(f64) -> f64> {
         let step_size_down = step_size_down.unwrap_or(step_size_up);
 
         CyclicLR {
+            lr: base_lr,
             base_lr,
             max_lr,
             step_size_up,
@@ -157,6 +159,7 @@ where
         let step_size_down = step_size_down.unwrap_or(step_size_up);
 
         CyclicLR {
+            lr: base_lr,
             base_lr,
             max_lr,
             step_size_up,
@@ -212,14 +215,14 @@ where
 {
     fn step(&mut self, _loss: f64) {
         self.step_count += 1;
-    }
-
-    fn get_lr(&self, _loss: f64) -> f64 {
         let (cycle, x) = self.get_cycle_and_position();
         let scale_factor = self.get_scale_factor(cycle, x);
         let amplitude = (self.max_lr - self.base_lr) * scale_factor;
+        self.lr = self.base_lr + amplitude * x;
+    }
 
-        self.base_lr + amplitude * x
+    fn get_lr(&self, _loss: f64) -> f64 {
+        self.lr
     }
 }
 
@@ -228,6 +231,7 @@ mod tests {
     use super::*;
     use crate::Scheduler;
     use approx::assert_relative_eq;
+    use std::f64::consts::PI;
 
     #[test]
     fn triangular_mode_basic() {
@@ -236,7 +240,7 @@ mod tests {
         // First cycle: 0 -> 1 -> 0 over 8 steps
         let expected_positions = [0.0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0.0];
 
-        for (_i, &expected_x) in expected_positions.iter().enumerate() {
+        for &expected_x in expected_positions.iter() {
             let lr = scheduler.get_lr(0.0);
             let expected_lr = 0.1 + (0.9 - 0.1) * expected_x;
             assert_relative_eq!(lr, expected_lr, epsilon = 1e-10, max_relative = 1e-10);
@@ -395,4 +399,3 @@ mod tests {
         }
     }
 }
-
