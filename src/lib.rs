@@ -1,6 +1,7 @@
 pub mod constant;
 pub mod cosine_annealing;
 pub mod cosine_annealing_warm_restarts;
+pub mod cyclic;
 pub mod exponential;
 pub mod linear;
 pub mod multiplicative;
