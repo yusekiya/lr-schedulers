@@ -1,24 +1,29 @@
 # Build Instructions
 
-## Steps
+**Document Contents**: How to build the lr-schedulers library and use it in other projects. Describes build commands using Cargo and dependency configuration methods.
 
-1. cargo build: Debug build
-2. cargo build --release: Release build (with optimizations)
+**Document Purpose**: To enable developers to properly build the library and use it in other projects.
 
-## Using as a Library
+## Build Procedure
+
+1. `cargo build`: Debug build
+2. `cargo build --release`: Release build (with optimizations)
+
+## Usage as a Library
 
 Usage in other projects:
 
-### Direct from GitHub
+### Direct Usage from GitHub
 
 ```toml
 [dependencies]
 lr-schedulers = { git = "https://github.com/yusekiya/lr-schedulers" }
 ```
 
-### Specify a Version
+### Specifying a Version
 
 ```toml
 [dependencies]
 lr-schedulers = { git = "https://github.com/yusekiya/lr-schedulers", version = "0.2.0" }
 ```
+

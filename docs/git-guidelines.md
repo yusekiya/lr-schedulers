@@ -1,25 +1,37 @@
 # Git Guidelines
 
+**Document Contents**: Git operation rules for the lr-schedulers project. Defines commit message conventions, branch naming rules, commit granularity, etc.
+
+**Document Purpose**: To maintain consistent Git history and facilitate change tracking and collaboration
+
 ## Basic Principles
 
-- Split commits into appropriate granularity
+- Divide commits into appropriate granularities
 - Write commit messages in English
-- Before pushing to remote, format the code and create a commit for the changes
-- Use the following verbs in commit messages based on the change:
-  - Add: Adding features
-  - Improve: Improving features
-  - Update: Changes due to dependency updates
-  - Fix: Bug fixes
-  - Refactor: Refactoring
-  - Remove: Removing features
-  - Document: Creating documentation
-  - Format: Code format
-- Use the following prefixes for branch names based on the change:
-  - feature/: Adding or improving features
-  - fix/: Bug fixes
-  - refactor/: Refactoring
-  - docs/: Adding or modifying documentation
+- Format code before pushing to remote and commit those changes
 
-## Prohibited
+## Commit Message Conventions
 
-- Combining multiple types of changes into a single commit
+Use the following verbs according to the type of change:
+
+- **Add**: Adding functionality
+- **Improve**: Improving functionality
+- **Update**: Changes due to dependency updates
+- **Fix**: Bug fixes
+- **Refactor**: Refactoring
+- **Remove**: Removing functionality
+- **Document**: Creating documentation
+- **Format**: Code formatting
+
+## Branch Naming Rules
+
+Use the following prefixes according to the type of change:
+
+- `feature/`: Adding or improving functionality
+- `fix/`: Bug fixes
+- `refactor/`: Refactoring
+- `docs/`: Adding or modifying documentation
+
+## Prohibited Actions
+
+- Do not combine multiple types of changes into one commit
