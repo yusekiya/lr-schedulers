@@ -90,5 +90,4 @@ The `docs/` directory contains detailed documentation:
 - `building-instructions.md` - Build and dependency instructions
 - `git-guidelines.md` - Git workflow and commit conventions
 - `project-requirements.md` - Core project requirements
-- Other documentation files for environment setup and project knowledge
 
