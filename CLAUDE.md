@@ -1,14 +1,14 @@
 # CLAUDE.md
 
-This file provides guidance for Claude Code (claude.ai/code) when working on this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**IMPORTANT**: Update relevant files whenever new implementations or important decisions are made.
+**IMPORTANT**: Update relevant documentation files in `docs/` whenever new implementations or important decisions are made.
 
 ## Project Overview
 
 lr-schedulers is a Rust library that provides learning rate schedulers for training machine learning models. This is a pure Rust implementation with no external runtime dependencies.
 
-### Implemented Schedulers
+### Implemented Schedulers (13 total)
 
 - **ConstantLR**: Maintains constant learning rate for specified iterations
 - **LinearLR**: Linear decay/growth between start and end values
@@ -21,10 +21,13 @@ lr-schedulers is a Rust library that provides learning rate schedulers for train
 - **CyclicLR**: Cycles between minimum and maximum learning rates
 - **MultiplicativeLR**: Multiplies learning rate by a custom factor function
 - **ReduceLROnPlateau**: Reduces learning rate when metric stops improving
+- **OneCycleLR**: One cycle learning rate policy
+- **[Any new schedulers should be added here]**
 
 ### Core Architecture
 
 All schedulers implement the `Scheduler` trait:
+
 ```rust
 pub trait Scheduler {
     fn step(&mut self, loss: f64);
@@ -32,7 +35,11 @@ pub trait Scheduler {
 }
 ```
 
-Note: For more detailed architecture information including library structure and implementation patterns, see @docs/architecture.md
+Key implementation patterns:
+
+- Each scheduler maintains internal state (step counter, current lr)
+- Most schedulers ignore the `loss` parameter (only `ReduceLROnPlateau` uses it)
+- `get_lr()` is idempotent until `step()` is called
 
 ## Quick Development Commands
 
@@ -41,7 +48,7 @@ Note: For more detailed architecture information including library structure and
 cargo build              # Debug build
 cargo build --release    # Release build
 cargo test              # Run all tests
-cargo test [module]     # Test specific module
+cargo test [module]     # Test specific module (e.g., cargo test linear)
 
 # Code Quality
 cargo fmt               # Format code (4-space indentation)
@@ -50,47 +57,38 @@ cargo doc --open        # Generate and view documentation
 
 # Development
 cargo test -- --nocapture  # Show test output
+cargo test --release      # Test in release mode
+cargo bench              # Run benchmarks
 ```
 
-Note: Additional commonly used commands (including `cargo test --release` and `cargo bench`) are documented in @docs/common-commands.md
+## When Adding a New Scheduler
 
-## Common Development Commands
+1. Create a new module file in `src/` (e.g., `src/my_scheduler.rs`)
+2. Implement the `Scheduler` trait with proper state management
+3. Add comprehensive unit tests in the same file
+4. Use `approx::assert_relative_eq!` for floating-point comparisons in tests
+5. Add documentation with usage examples
+6. Export the scheduler in `src/lib.rs`
+7. Update this file's scheduler list
+8. Update README.md if it's still outdated
 
-- @docs/common-commands.md
+## Testing Best Practices
 
-## Project Architecture
+- Test edge cases (zero steps, negative values, boundary conditions)
+- Test initialization with different `init_step` values
+- Use dummy loss value (0.0) for schedulers that don't use loss
+- Include examples in doc comments that can be tested
 
-- @docs/architecture.md
+## Project Documentation
 
-## Project Requirements
+The `docs/` directory contains detailed documentation:
 
-- @docs/project-requirements.md
-
-## Code Style Guidelines
-
-- @docs/code-style.md
-
-## Testing Instructions
-
-- @docs/testing-instructions.md
-
-## Build Instructions
-
-- @docs/building-instructions.md
-
-## Git Guidelines
-
-- @docs/git-guidelines.md
-
-## Developer Environment Setup
-
-- @docs/developer-environment-setup.md
-
-## Technical Knowledge
-
-- @docs/project-knowledge.md
-
-## Improvement History
-
-- @docs/project-improvements.md
+- `architecture.md` - Library structure and core interface
+- `common-commands.md` - Extended list of development commands
+- `code-style.md` - Detailed style guidelines
+- `testing-instructions.md` - Comprehensive testing guide
+- `building-instructions.md` - Build and dependency instructions
+- `git-guidelines.md` - Git workflow and commit conventions
+- `project-requirements.md` - Core project requirements
+- Other documentation files for environment setup and project knowledge
 
