@@ -1,55 +1,55 @@
+//! Implements the 1cycle learning rate policy.
+//!
+//! This scheduler anneals the learning rate from an initial learning rate to a maximum
+//! learning rate and then from that maximum learning rate to a minimum learning rate
+//! much lower than the initial learning rate, following the "Super-Convergence" approach.
+//!
+//! # Examples
+//!
+//! Basic usage with cosine annealing:
+//!
+//! ```
+//! # use lr_schedulers::onecycle::{OneCycleLR, AnnealStrategy};
+//! # use lr_schedulers::Scheduler;
+//! let mut scheduler = OneCycleLR::new(0.1, 100, 0.3, AnnealStrategy::Cos, 25.0, 10000.0, false);
+//! let mut learning_rates = Vec::new();
+//! for _ in 0 .. 10 {
+//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     scheduler.step(0.0);
+//! }
+//! // Forms 1cycle pattern: low -> high -> very low
+//! ```
+//!
+//! Linear annealing strategy:
+//!
+//! ```
+//! # use lr_schedulers::onecycle::{OneCycleLR, AnnealStrategy};
+//! # use lr_schedulers::Scheduler;
+//! let mut scheduler = OneCycleLR::new(0.1, 50, 0.2, AnnealStrategy::Linear, 10.0, 1000.0, false);
+//! let mut learning_rates = Vec::new();
+//! for _ in 0 .. 8 {
+//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     scheduler.step(0.0);
+//! }
+//! // Uses linear interpolation for smoother transitions
+//! ```
+//!
+//! Three-phase schedule:
+//!
+//! ```
+//! # use lr_schedulers::onecycle::{OneCycleLR, AnnealStrategy};
+//! # use lr_schedulers::Scheduler;
+//! let mut scheduler = OneCycleLR::new(0.1, 60, 0.3, AnnealStrategy::Cos, 25.0, 10000.0, true);
+//! let mut learning_rates = Vec::new();
+//! for _ in 0 .. 12 {
+//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     scheduler.step(0.0);
+//! }
+//! // Three phases: warmup -> annealing -> final annealing
+//! ```
+
 use crate::Scheduler;
 use std::f64::consts::PI;
-
-/// Implements the 1cycle learning rate policy.
-/// 
-/// This scheduler anneals the learning rate from an initial learning rate to a maximum
-/// learning rate and then from that maximum learning rate to a minimum learning rate
-/// much lower than the initial learning rate, following the "Super-Convergence" approach.
-/// 
-/// # Examples
-/// 
-/// Basic usage with cosine annealing:
-/// 
-/// ```
-/// # use lr_schedulers::onecycle::{OneCycleLR, AnnealStrategy};
-/// # use lr_schedulers::Scheduler;
-/// let mut scheduler = OneCycleLR::new(0.1, 100, 0.3, AnnealStrategy::Cos, 25.0, 10000.0, false);
-/// let mut learning_rates = Vec::new();
-/// for _ in 0 .. 10 {
-///     learning_rates.push(scheduler.get_lr(0.0));
-///     scheduler.step(0.0);
-/// }
-/// // Forms 1cycle pattern: low -> high -> very low
-/// ```
-/// 
-/// Linear annealing strategy:
-/// 
-/// ```
-/// # use lr_schedulers::onecycle::{OneCycleLR, AnnealStrategy};
-/// # use lr_schedulers::Scheduler;
-/// let mut scheduler = OneCycleLR::new(0.1, 50, 0.2, AnnealStrategy::Linear, 10.0, 1000.0, false);
-/// let mut learning_rates = Vec::new();
-/// for _ in 0 .. 8 {
-///     learning_rates.push(scheduler.get_lr(0.0));
-///     scheduler.step(0.0);
-/// }
-/// // Uses linear interpolation for smoother transitions
-/// ```
-/// 
-/// Three-phase schedule:
-/// 
-/// ```
-/// # use lr_schedulers::onecycle::{OneCycleLR, AnnealStrategy};
-/// # use lr_schedulers::Scheduler;
-/// let mut scheduler = OneCycleLR::new(0.1, 60, 0.3, AnnealStrategy::Cos, 25.0, 10000.0, true);
-/// let mut learning_rates = Vec::new();
-/// for _ in 0 .. 12 {
-///     learning_rates.push(scheduler.get_lr(0.0));
-///     scheduler.step(0.0);
-/// }
-/// // Three phases: warmup -> annealing -> final annealing
-/// ```
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AnnealStrategy {
