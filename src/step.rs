@@ -9,13 +9,13 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::step::StepLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let mut scheduler = StepLR::new(1.0, 3, 0.1, 0);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 10 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01, 0.001];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01, 0.001]);
 /// ```
 ///
 /// Starting point can be changed with `init_step`:
@@ -23,14 +23,14 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::step::StepLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let init_step = 2;
 /// let mut scheduler = StepLR::new(1.0, 3, 0.1, init_step);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 5 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [1.0, 0.1, 0.1, 0.1, 0.01];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [1.0, 0.1, 0.1, 0.1, 0.01]);
 /// ```
 ///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.

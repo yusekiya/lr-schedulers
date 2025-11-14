@@ -9,13 +9,13 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::polynomial::PolynomialLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let mut scheduler = PolynomialLR::new(1.0, 5, 1.0, 0);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 8 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0, 0.0, 0.0];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [1.0, 0.8, 0.6, 0.4, 0.2, 0.0, 0.0, 0.0]);
 /// ```
 ///
 /// Different power values create different decay curves:
@@ -23,14 +23,14 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::polynomial::PolynomialLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// // Quadratic decay (power=2.0)
 /// let mut scheduler = PolynomialLR::new(1.0, 4, 2.0, 0);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 6 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [1.0, 0.5625, 0.25, 0.0625, 0.0, 0.0];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [1.0, 0.5625, 0.25, 0.0625, 0.0, 0.0]);
 /// ```
 ///
 /// Starting point can be changed with `init_step`:
@@ -38,14 +38,14 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::polynomial::PolynomialLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let init_step = 2;
 /// let mut scheduler = PolynomialLR::new(1.0, 5, 1.0, init_step);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 4 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [0.6, 0.4, 0.2, 0.0];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [0.6, 0.4, 0.2, 0.0]);
 /// ```
 ///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.

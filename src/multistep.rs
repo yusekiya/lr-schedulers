@@ -9,13 +9,13 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::multistep::MultiStepLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let mut scheduler = MultiStepLR::new(1.0, vec![3, 7], 0.1, 0);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 10 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01]);
 /// ```
 ///
 /// Multiple milestones with different gamma:
@@ -23,13 +23,13 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::multistep::MultiStepLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let mut scheduler = MultiStepLR::new(0.5, vec![2, 5, 8], 0.5, 0);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 10 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [0.5, 0.5, 0.25, 0.25, 0.25, 0.125, 0.125, 0.125, 0.0625, 0.0625];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [0.5, 0.5, 0.25, 0.25, 0.25, 0.125, 0.125, 0.125, 0.0625, 0.0625]);
 /// ```
 ///
 /// Starting point can be changed with `init_step`:
@@ -37,14 +37,14 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::multistep::MultiStepLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let init_step = 4;
 /// let mut scheduler = MultiStepLR::new(1.0, vec![3, 7], 0.1, init_step);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 5 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [0.1, 0.1, 0.1, 0.01, 0.01];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [0.1, 0.1, 0.1, 0.01, 0.01]);
 /// ```
 ///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.

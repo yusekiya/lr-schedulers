@@ -9,13 +9,13 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let mut scheduler = MultiplicativeLR::new(1.0, |_| 0.95, 0);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 5 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [1.0, 0.95, 0.9025, 0.857375, 0.81450625];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [1.0, 0.95, 0.9025, 0.857375, 0.81450625]);
 /// ```
 ///
 /// Custom lambda function with different decay rates:
@@ -23,14 +23,14 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let lambda = |epoch| if epoch < 3 { 0.9 } else { 0.95 };
 /// let mut scheduler = MultiplicativeLR::new(1.0, lambda, 0);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 6 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [1.0, 0.9, 0.81, 0.729, 0.69255, 0.6579225];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [1.0, 0.9, 0.81, 0.729, 0.69255, 0.6579225]);
 /// ```
 ///
 /// Starting point can be changed with `init_step`:
@@ -38,14 +38,14 @@ use crate::Scheduler;
 /// ```
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
+/// # use approx::assert_relative_eq;
 /// let init_step = 2;
 /// let mut scheduler = MultiplicativeLR::new(1.0, |_| 0.95, init_step);
-/// let mut learning_rates: Vec<f64> = Vec::new();
-/// for _ in 0 .. 3 {
-///     learning_rates.push(scheduler.get_lr());
+/// let expected = [0.9025, 0.857375, 0.81450625];
+/// for exp_lr in expected.iter() {
+///     assert_relative_eq!(scheduler.get_lr(), exp_lr, epsilon = 1e-10);
 ///     scheduler.step(0.01);
 /// }
-/// assert_eq!(learning_rates, [0.9025, 0.857375, 0.81450625]);
 /// ```
 ///
 /// The `get_lr` method returns the same value unless the `step` method is invoked.
