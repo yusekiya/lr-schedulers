@@ -10,10 +10,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::linear::LinearLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 2, 0);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 5 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [2.0, 1.25, 0.5, 0.5, 0.5]);
@@ -26,10 +25,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::Scheduler;
 /// let init_step = 1;
 /// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 2, init_step);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 5 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [1.25, 0.5, 0.5, 0.5, 0.5]);
@@ -41,12 +39,11 @@ use crate::Scheduler;
 /// # use lr_schedulers::linear::LinearLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = LinearLR::new(1.0, 2.0, 0.5, 5, 0);
-/// // Note: loss value is not used in this scheduler.
-/// let lr = scheduler.get_lr(0.01);
-/// assert_eq!(lr, scheduler.get_lr(0.01));
+/// let lr = scheduler.get_lr();
+/// assert_eq!(lr, scheduler.get_lr());
 /// scheduler.step(0.01);
-/// let lr = scheduler.get_lr(0.01);
-/// assert_ne!(lr, scheduler.get_lr(0.01));
+/// let new_lr = scheduler.get_lr();
+/// assert_ne!(lr, new_lr);
 /// ```
 #[derive(Debug, Clone)]
 pub struct LinearLR {
@@ -119,7 +116,7 @@ impl Scheduler for LinearLR {
         }
     }
 
-    fn get_lr(&self, _loss: f64) -> f64 {
+    fn get_lr(&self) -> f64 {
         self.lr
     }
 }
@@ -140,7 +137,7 @@ mod tests {
             LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [2.0, 1.25, 0.5, 0.5, 0.5];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_eq!(lr, *exp_lr, "Step {}", i);
             // Proceed a step wit dummy loss
             scheduler.step(0.0);
@@ -158,7 +155,7 @@ mod tests {
             LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [0.5, 1.25, 2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_eq!(lr, *exp_lr, "Step {}", i);
             // Proceed a step wit dummy loss
             scheduler.step(0.0);
@@ -176,7 +173,7 @@ mod tests {
             LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [1.25, 2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_eq!(lr, *exp_lr, "Step {}", i);
             // Proceed a step wit dummy loss
             scheduler.step(0.0);
@@ -194,7 +191,7 @@ mod tests {
             LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_eq!(lr, *exp_lr, "Step {}", i);
             // Proceed a step wit dummy loss
             scheduler.step(0.0);
@@ -212,7 +209,7 @@ mod tests {
             LinearLR::new(base_lr, start_factor, end_factor, total_iters, init_step);
         let expected_lrs = [2.0, 2.0, 2.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_eq!(lr, *exp_lr, "Step {}", i);
             // Proceed a step wit dummy loss
             scheduler.step(0.0);

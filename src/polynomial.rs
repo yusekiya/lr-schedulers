@@ -10,10 +10,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::polynomial::PolynomialLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = PolynomialLR::new(1.0, 5, 1.0, 0);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 8 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [1.0, 0.8, 0.6, 0.4, 0.2, 0.0, 0.0, 0.0]);
@@ -26,10 +25,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::Scheduler;
 /// // Quadratic decay (power=2.0)
 /// let mut scheduler = PolynomialLR::new(1.0, 4, 2.0, 0);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 6 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [1.0, 0.5625, 0.25, 0.0625, 0.0, 0.0]);
@@ -42,10 +40,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::Scheduler;
 /// let init_step = 2;
 /// let mut scheduler = PolynomialLR::new(1.0, 5, 1.0, init_step);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 4 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [0.6, 0.4, 0.2, 0.0]);
@@ -57,12 +54,11 @@ use crate::Scheduler;
 /// # use lr_schedulers::polynomial::PolynomialLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = PolynomialLR::new(1.0, 5, 1.0, 0);
-/// // Note: loss value is not used in this scheduler.
-/// let lr = scheduler.get_lr(0.01);
-/// assert_eq!(lr, scheduler.get_lr(0.01));
+/// let lr = scheduler.get_lr();
+/// assert_eq!(lr, scheduler.get_lr());
 /// scheduler.step(0.01);
-/// let lr = scheduler.get_lr(0.01);
-/// assert_ne!(lr, scheduler.get_lr(0.01));
+/// let new_lr = scheduler.get_lr();
+/// assert_ne!(lr, new_lr);
 /// ```
 #[derive(Debug, Clone)]
 pub struct PolynomialLR {
@@ -112,7 +108,7 @@ impl Scheduler for PolynomialLR {
         }
     }
 
-    fn get_lr(&self, _loss: f64) -> f64 {
+    fn get_lr(&self) -> f64 {
         self.lr
     }
 }
@@ -133,7 +129,7 @@ mod tests {
 
         let expected_lrs = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0, 0.0, 0.0];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -149,7 +145,7 @@ mod tests {
 
         let expected_lrs = [1.0, 0.5625, 0.25, 0.0625, 0.0, 0.0];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -166,7 +162,7 @@ mod tests {
         // Expected values: 1.0, sqrt(0.75), sqrt(0.5), sqrt(0.25), 0.0
         let expected_lrs = [1.0, 0.75f64.sqrt(), 0.5f64.sqrt(), 0.5, 0.0];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -183,7 +179,7 @@ mod tests {
         // At init_step=2, factor = 1 - 2/5 = 0.6
         let expected_lrs = [0.6, 0.4, 0.2, 0.0];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -198,12 +194,12 @@ mod tests {
         let mut scheduler = PolynomialLR::new(base_lr, total_iters, power, init_step);
 
         // At init_step=5 (>= total_iters), lr should be 0
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.0, epsilon = 1e-10, max_relative = 1e-10);
 
         // Should remain at 0
         scheduler.step(0.0);
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.0, epsilon = 1e-10, max_relative = 1e-10);
     }
 
@@ -216,13 +212,13 @@ mod tests {
         let mut scheduler = PolynomialLR::new(base_lr, total_iters, power, init_step);
 
         // At init_step=10 (> total_iters), lr should be 0
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.0, epsilon = 1e-10, max_relative = 1e-10);
 
         // Should remain at 0
         for _ in 0..5 {
             scheduler.step(0.0);
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, 0.0, epsilon = 1e-10, max_relative = 1e-10);
         }
     }
@@ -243,7 +239,7 @@ mod tests {
             0.0,
         ];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -258,12 +254,12 @@ mod tests {
         let mut scheduler = PolynomialLR::new(base_lr, total_iters, power, init_step);
 
         // At step 0, factor = 1 - 0/1 = 1.0, so lr = 1.0
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 1.0, epsilon = 1e-10, max_relative = 1e-10);
 
         // After one step, should be 0
         scheduler.step(0.0);
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.0, epsilon = 1e-10, max_relative = 1e-10);
     }
 
@@ -276,11 +272,11 @@ mod tests {
         let mut scheduler = PolynomialLR::new(base_lr, total_iters, power, init_step);
 
         // With total_iters=0, lr should be 0 immediately
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.0, epsilon = 1e-10, max_relative = 1e-10);
 
         scheduler.step(0.0);
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.0, epsilon = 1e-10, max_relative = 1e-10);
     }
 
@@ -294,7 +290,7 @@ mod tests {
 
         let expected_lrs = [0.5, 0.375, 0.25, 0.125, 0.0];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }

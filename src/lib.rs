@@ -15,7 +15,5 @@ pub trait Scheduler {
     /// Proceeds the step of scheduler.
     fn step(&mut self, loss: f64);
     /// Returns a learning rate for the current step.
-    ///
-    /// The argument `loss` is for schedulers that require history of loss value such as ReduceLROnPlateau.
-    fn get_lr(&self, loss: f64) -> f64;
+    fn get_lr(&self) -> f64;
 }

@@ -7,8 +7,8 @@
 
 - All schedulers implement the `Scheduler` trait
 - Each scheduler maintains internal state (step counter, current lr)
-- Most schedulers ignore the `loss` parameter (only `ReduceLROnPlateau` uses it)
-- `get_lr()` is idempotent until `step()` is called
+- `get_lr()` returns the current learning rate and is idempotent until `step()` is called
+- `step()` accepts a `loss` parameter for schedulers like `ReduceLROnPlateau` that adjust based on metrics
 - All schedulers support `init_step` for training resumption
 
 ## Core Interface
@@ -16,7 +16,7 @@
 ```rust
 pub trait Scheduler {
     fn step(&mut self, loss: f64);
-    fn get_lr(&self, loss: f64) -> f64;
+    fn get_lr(&self) -> f64;
 }
 ```
 
