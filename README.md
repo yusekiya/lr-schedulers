@@ -5,10 +5,17 @@ This crate provides learning rate schedulers for training of machine learning mo
 Implemented schedulers:
 
 * ConstantLR
-* LineareLR
-* ExponentialLR
 * CosineAnnealingLR
 * CosineAnnealingWarmRestarts
+* CyclicLR
+* ExponentialLR
+* LinearLR
+* MultiplicativeLR
+* MultiStepLR
+* OneCycleLR
+* PolynomialLR
+* ReduceLROnPlateau
+* StepLR
 
 ## Examples
 
