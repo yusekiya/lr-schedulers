@@ -14,7 +14,7 @@
 //! let mut scheduler = OneCycleLR::new(0.1, 100, 0.3, AnnealStrategy::Cos, 25.0, 10000.0, false);
 //! let mut learning_rates = Vec::new();
 //! for _ in 0 .. 10 {
-//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     learning_rates.push(scheduler.get_lr());
 //!     scheduler.step(0.0);
 //! }
 //! // Forms 1cycle pattern: low -> high -> very low
@@ -29,7 +29,7 @@
 //! let mut scheduler = OneCycleLR::new(0.1, 50, 0.2, AnnealStrategy::Linear, 10.0, 1000.0, false);
 //! let mut learning_rates = Vec::new();
 //! for _ in 0 .. 8 {
-//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     learning_rates.push(scheduler.get_lr());
 //!     scheduler.step(0.0);
 //! }
 //! // Uses linear interpolation for smoother transitions
@@ -44,7 +44,7 @@
 //! let mut scheduler = OneCycleLR::new(0.1, 60, 0.3, AnnealStrategy::Cos, 25.0, 10000.0, true);
 //! let mut learning_rates = Vec::new();
 //! for _ in 0 .. 12 {
-//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     learning_rates.push(scheduler.get_lr());
 //!     scheduler.step(0.0);
 //! }
 //! // Three phases: warmup -> annealing -> final annealing
@@ -211,7 +211,7 @@ impl Scheduler for OneCycleLR {
         }
     }
 
-    fn get_lr(&self, _loss: f64) -> f64 {
+    fn get_lr(&self) -> f64 {
         self.lr
     }
 }
@@ -230,7 +230,7 @@ mod tests {
         // initial_lr = 0.1 / 10.0 = 0.01
         // min_lr = 0.01 / 100.0 = 0.0001
 
-        let lr_start = scheduler.get_lr(0.0);
+        let lr_start = scheduler.get_lr();
         assert_relative_eq!(lr_start, 0.01, epsilon = 1e-10, max_relative = 1e-10);
 
         // Move to warmup steps
@@ -239,7 +239,7 @@ mod tests {
         }
 
         // Should be at or near max_lr
-        let lr_max = scheduler.get_lr(0.0);
+        let lr_max = scheduler.get_lr();
         assert!(lr_max > 0.09); // Should be close to max_lr = 0.1
 
         // Move through annealing
@@ -248,7 +248,7 @@ mod tests {
         }
 
         // Should be at min_lr
-        let lr_final = scheduler.get_lr(0.0);
+        let lr_final = scheduler.get_lr();
         assert_relative_eq!(lr_final, 0.0001, epsilon = 1e-10, max_relative = 1e-10);
     }
 
@@ -261,13 +261,13 @@ mod tests {
         // initial_lr = 0.2 / 20.0 = 0.01
         // min_lr = 0.01 / 1000.0 = 0.00001
 
-        let lr_start = scheduler.get_lr(0.0);
+        let lr_start = scheduler.get_lr();
         assert_relative_eq!(lr_start, 0.01, epsilon = 1e-10, max_relative = 1e-10);
 
         // Test progression through phases
         let mut max_lr_seen = 0.0f64;
         for _ in 0..12 {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             max_lr_seen = max_lr_seen.max(lr);
             scheduler.step(0.0);
         }
@@ -276,7 +276,7 @@ mod tests {
         assert!(max_lr_seen > 0.15);
 
         // Final LR should be min_lr
-        let lr_final = scheduler.get_lr(0.0);
+        let lr_final = scheduler.get_lr();
         assert_relative_eq!(lr_final, 0.00001, epsilon = 1e-10, max_relative = 1e-10);
     }
 
@@ -289,7 +289,7 @@ mod tests {
         let mut phase_lrs = Vec::new();
 
         for step in 0..=10 {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             phase_lrs.push((step, lr));
             if step < 10 {
                 scheduler.step(0.0);
@@ -319,8 +319,8 @@ mod tests {
         let mut lin_lrs = Vec::new();
 
         for _ in 0..8 {
-            cos_lrs.push(cos_scheduler.get_lr(0.0));
-            lin_lrs.push(lin_scheduler.get_lr(0.0));
+            cos_lrs.push(cos_scheduler.get_lr());
+            lin_lrs.push(lin_scheduler.get_lr());
             cos_scheduler.step(0.0);
             lin_scheduler.step(0.0);
         }
@@ -347,11 +347,11 @@ mod tests {
         let mut scheduler =
             OneCycleLR::new(1.0, 2, 0.5, AnnealStrategy::Linear, 10.0, 100.0, false);
 
-        let lr1 = scheduler.get_lr(0.0);
+        let lr1 = scheduler.get_lr();
         scheduler.step(0.0);
-        let lr2 = scheduler.get_lr(0.0);
+        let lr2 = scheduler.get_lr();
         scheduler.step(0.0);
-        let lr3 = scheduler.get_lr(0.0);
+        let lr3 = scheduler.get_lr();
 
         assert_relative_eq!(lr1, 0.1, epsilon = 1e-10, max_relative = 1e-10);
         assert!(lr2 > lr1); // Should increase during warmup
@@ -364,11 +364,11 @@ mod tests {
             OneCycleLR::new(1.0, 10, 0.0, AnnealStrategy::Linear, 10.0, 100.0, false);
 
         // With pct_start = 0.0, should start at max_lr
-        let lr_start = scheduler.get_lr(0.0);
+        let lr_start = scheduler.get_lr();
         assert_relative_eq!(lr_start, 1.0, epsilon = 1e-10, max_relative = 1e-10);
 
         scheduler.step(0.0);
-        let lr_next = scheduler.get_lr(0.0);
+        let lr_next = scheduler.get_lr();
         assert!(lr_next < lr_start); // Should immediately start decreasing
     }
 
@@ -383,7 +383,7 @@ mod tests {
         }
 
         // Should return min_lr
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.001, epsilon = 1e-10, max_relative = 1e-10);
     }
 
@@ -395,8 +395,8 @@ mod tests {
         // scheduler1: initial_lr = 1.0/5.0 = 0.2, min_lr = 0.2/50.0 = 0.004
         // scheduler2: initial_lr = 1.0/20.0 = 0.05, min_lr = 0.05/2000.0 = 0.000025
 
-        let lr1_start = scheduler1.get_lr(0.0);
-        let lr2_start = scheduler2.get_lr(0.0);
+        let lr1_start = scheduler1.get_lr();
+        let lr2_start = scheduler2.get_lr();
 
         assert_relative_eq!(lr1_start, 0.2, epsilon = 1e-10, max_relative = 1e-10);
         assert_relative_eq!(lr2_start, 0.05, epsilon = 1e-10, max_relative = 1e-10);

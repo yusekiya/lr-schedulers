@@ -10,10 +10,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::multistep::MultiStepLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = MultiStepLR::new(1.0, vec![3, 7], 0.1, 0);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 10 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01]);
@@ -25,10 +24,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::multistep::MultiStepLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = MultiStepLR::new(0.5, vec![2, 5, 8], 0.5, 0);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 10 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [0.5, 0.5, 0.25, 0.25, 0.25, 0.125, 0.125, 0.125, 0.0625, 0.0625]);
@@ -41,10 +39,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::Scheduler;
 /// let init_step = 4;
 /// let mut scheduler = MultiStepLR::new(1.0, vec![3, 7], 0.1, init_step);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 5 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [0.1, 0.1, 0.1, 0.01, 0.01]);
@@ -56,12 +53,11 @@ use crate::Scheduler;
 /// # use lr_schedulers::multistep::MultiStepLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = MultiStepLR::new(1.0, vec![3, 7], 0.1, 0);
-/// // Note: loss value is not used in this scheduler.
-/// let lr = scheduler.get_lr(0.01);
-/// assert_eq!(lr, scheduler.get_lr(0.01));
+/// let lr = scheduler.get_lr();
+/// assert_eq!(lr, scheduler.get_lr());
 /// scheduler.step(0.01);
-/// let lr = scheduler.get_lr(0.01);
-/// assert_ne!(lr, scheduler.get_lr(0.01));
+/// let new_lr = scheduler.get_lr();
+/// assert_ne!(lr, new_lr);
 /// ```
 #[derive(Debug, Clone)]
 pub struct MultiStepLR {
@@ -106,7 +102,7 @@ impl Scheduler for MultiStepLR {
         self.lr = self.base_lr * self.gamma.powi(milestones_passed as i32);
     }
 
-    fn get_lr(&self, _loss: f64) -> f64 {
+    fn get_lr(&self) -> f64 {
         self.lr
     }
 }
@@ -127,7 +123,7 @@ mod tests {
 
         let expected_lrs = [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -145,7 +141,7 @@ mod tests {
             0.5, 0.5, 0.25, 0.25, 0.25, 0.125, 0.125, 0.125, 0.0625, 0.0625,
         ];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -161,13 +157,13 @@ mod tests {
 
         // First 5 steps should have base_lr
         for _ in 0..5 {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, base_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
 
         // After milestone, should be base_lr * gamma
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, base_lr * gamma, epsilon = 1e-10, max_relative = 1e-10);
     }
 
@@ -183,7 +179,7 @@ mod tests {
         // Milestones should be treated as [3, 7, 10]
         let expected_lrs = [1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -200,7 +196,7 @@ mod tests {
         // At init_step=4, one milestone (3) has been passed
         let expected_lrs = [0.1, 0.1, 0.1, 0.01, 0.01];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -215,11 +211,11 @@ mod tests {
         let mut scheduler = MultiStepLR::new(base_lr, milestones, gamma, init_step);
 
         // At init_step=3, one milestone (3) has been passed
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.1, epsilon = 1e-10, max_relative = 1e-10);
 
         scheduler.step(0.0);
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.1, epsilon = 1e-10, max_relative = 1e-10);
     }
 
@@ -233,7 +229,7 @@ mod tests {
 
         let expected_lrs = [0.1, 0.1, 0.2, 0.2, 0.2, 0.4, 0.4];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -249,7 +245,7 @@ mod tests {
 
         // With no milestones, learning rate should remain constant
         for _ in 0..10 {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, base_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
         }
@@ -265,12 +261,12 @@ mod tests {
 
         // At init_step=10, both milestones have been passed
         // lr = base_lr * gamma^2 = 1.0 * 0.1^2 = 0.01
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.01, epsilon = 1e-10, max_relative = 1e-10);
 
         // Should remain at this level
         scheduler.step(0.0);
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.01, epsilon = 1e-10, max_relative = 1e-10);
     }
 }

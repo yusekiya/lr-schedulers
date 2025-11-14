@@ -13,10 +13,9 @@ const PI: f64 = std::f64::consts::PI;
 /// # use lr_schedulers::Scheduler;
 /// # use std::iter::zip;
 /// let mut scheduler = CosineAnnealingLR::new(1.0, 0.0, 2, 0);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 5 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// for (target, expected) in zip(learning_rates, [1.0, 0.5, 0.0, 0.5, 1.0]) {
@@ -32,10 +31,9 @@ const PI: f64 = std::f64::consts::PI;
 /// # use std::iter::zip;
 /// let init_step = 1;
 /// let mut scheduler = CosineAnnealingLR::new(1.0, 0.0, 2, init_step);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 5 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// for (target, expected) in zip(learning_rates, [0.5, 0.0, 0.5, 1.0, 0.5]) {
@@ -49,12 +47,11 @@ const PI: f64 = std::f64::consts::PI;
 /// # use lr_schedulers::cosine_annealing::CosineAnnealingLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = CosineAnnealingLR::new(1.0, 0.0, 2, 0);
-/// // Note: loss value is not used in this scheduler.
-/// let lr = scheduler.get_lr(0.01);
-/// assert_eq!(lr, scheduler.get_lr(0.01));
+/// let lr = scheduler.get_lr();
+/// assert_eq!(lr, scheduler.get_lr());
 /// scheduler.step(0.01);
-/// let lr = scheduler.get_lr(0.01);
-/// assert_ne!(lr, scheduler.get_lr(0.01));
+/// let new_lr = scheduler.get_lr();
+/// assert_ne!(lr, new_lr);
 /// ```
 #[derive(Debug, Clone)]
 pub struct CosineAnnealingLR {
@@ -96,7 +93,7 @@ impl Scheduler for CosineAnnealingLR {
         self.lr = (self.eta_0 - self.eta_1).mul_add(periodic_factor, self.eta_1);
     }
 
-    fn get_lr(&self, _loss: f64) -> f64 {
+    fn get_lr(&self) -> f64 {
         self.lr
     }
 }
@@ -122,7 +119,7 @@ mod tests {
         let mut scheduler = CosineAnnealingLR::new(eta_0, eta_1, t_max, init_step);
         let expected_lrs = [1.0, 0.5, 0.0, 0.5, 1.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert!(
                 relative_eq!(lr, *exp_lr),
                 "Step {}: left: {}, right: {}",
@@ -144,7 +141,7 @@ mod tests {
         let mut scheduler = CosineAnnealingLR::new(eta_0, eta_1, t_max, init_step);
         let expected_lrs = [0.0, 0.5, 1.0, 0.5, 0.0];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert!(
                 relative_eq!(lr, *exp_lr),
                 "Step {}: left: {}, right: {}",
@@ -166,7 +163,7 @@ mod tests {
         let mut scheduler = CosineAnnealingLR::new(eta_0, eta_1, t_max, init_step);
         let expected_lrs = [0.5, 0.0, 0.5, 1.0, 0.5];
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert!(
                 relative_eq!(lr, *exp_lr),
                 "Step {}: left: {}, right: {}",
@@ -189,7 +186,7 @@ mod tests {
         let mut scheduler = CosineAnnealingLR::new(eta_0, eta_1, t_max, init_step);
         let expected_lrs = [1.0, 0.5, 0.0, 0.5].repeat(repeat);
         for (i, exp_lr) in expected_lrs.iter().enumerate() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert!(
                 relative_eq!(lr, *exp_lr),
                 "Step {}: left: {}, right: {}",

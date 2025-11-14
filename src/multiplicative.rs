@@ -10,10 +10,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = MultiplicativeLR::new(1.0, |_| 0.95, 0);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 5 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [1.0, 0.95, 0.9025, 0.857375, 0.81450625]);
@@ -26,10 +25,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::Scheduler;
 /// let lambda = |epoch| if epoch < 3 { 0.9 } else { 0.95 };
 /// let mut scheduler = MultiplicativeLR::new(1.0, lambda, 0);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 6 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [1.0, 0.9, 0.81, 0.729, 0.69255, 0.6579225]);
@@ -42,10 +40,9 @@ use crate::Scheduler;
 /// # use lr_schedulers::Scheduler;
 /// let init_step = 2;
 /// let mut scheduler = MultiplicativeLR::new(1.0, |_| 0.95, init_step);
-/// let mut learning_rates = Vec::new();
+/// let mut learning_rates: Vec<f64> = Vec::new();
 /// for _ in 0 .. 3 {
-///     // Note: loss value is not used in this scheduler.
-///     learning_rates.push(scheduler.get_lr(0.01));
+///     learning_rates.push(scheduler.get_lr());
 ///     scheduler.step(0.01);
 /// }
 /// assert_eq!(learning_rates, [0.9025, 0.857375, 0.81450625]);
@@ -57,12 +54,11 @@ use crate::Scheduler;
 /// # use lr_schedulers::multiplicative::MultiplicativeLR;
 /// # use lr_schedulers::Scheduler;
 /// let mut scheduler = MultiplicativeLR::new(1.0, |_| 0.95, 0);
-/// // Note: loss value is not used in this scheduler.
-/// let lr = scheduler.get_lr(0.01);
-/// assert_eq!(lr, scheduler.get_lr(0.01));
+/// let lr = scheduler.get_lr();
+/// assert_eq!(lr, scheduler.get_lr());
 /// scheduler.step(0.01);
-/// let lr = scheduler.get_lr(0.01);
-/// assert_ne!(lr, scheduler.get_lr(0.01));
+/// let new_lr = scheduler.get_lr();
+/// assert_ne!(lr, new_lr);
 /// ```
 #[derive(Debug, Clone)]
 pub struct MultiplicativeLR<F>
@@ -107,7 +103,7 @@ where
         self.step += 1;
     }
 
-    fn get_lr(&self, _loss: f64) -> f64 {
+    fn get_lr(&self) -> f64 {
         self.lr
     }
 }
@@ -127,7 +123,7 @@ mod tests {
 
         let expected_lrs = [1.0, 0.95, 0.9025, 0.857375, 0.81450625];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
             scheduler.step(0.0);
@@ -143,7 +139,7 @@ mod tests {
 
         let expected_lrs = [1.0, 0.9, 0.81, 0.729, 0.69255, 0.6579225];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
             scheduler.step(0.0);
@@ -158,7 +154,7 @@ mod tests {
         let mut scheduler = MultiplicativeLR::new(base_lr, lambda, init_step);
 
         for _ in 0..5 {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, base_lr, epsilon = 1e-9, max_relative = 1e-9);
             scheduler.step(0.0);
         }
@@ -173,7 +169,7 @@ mod tests {
 
         let expected_lrs = [0.1, 0.11, 0.121, 0.1331, 0.14641];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
             scheduler.step(0.0);
@@ -190,7 +186,7 @@ mod tests {
         // At init_step=2, lr should be 1.0 * 0.95 * 0.95 = 0.9025
         let expected_lrs = [0.9025, 0.857375, 0.81450625];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
             scheduler.step(0.0);
@@ -217,7 +213,7 @@ mod tests {
         // epoch 4: 0.2025 * 0.9 = 0.18225
         let expected_lrs = [1.0, 0.5, 0.45, 0.405, 0.2025, 0.18225];
         for exp_lr in expected_lrs.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, *exp_lr, epsilon = 1e-9, max_relative = 1e-9);
             // Proceed a step with dummy loss.
             scheduler.step(0.0);
@@ -236,12 +232,12 @@ mod tests {
         // epoch 1: 0.8 * 0.8 = 0.64
         // epoch 2: 0.64 * 0.9 = 0.576
         // So at init_step=3, lr = 0.576
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.576, epsilon = 1e-9, max_relative = 1e-9);
 
         // Next steps should use lambda(3) = 0.9, lambda(4) = 0.9, ...
         scheduler.step(0.0);
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         assert_relative_eq!(lr, 0.5184, epsilon = 1e-9, max_relative = 1e-9);
     }
 }

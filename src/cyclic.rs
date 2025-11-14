@@ -11,9 +11,9 @@
 //! # use lr_schedulers::cyclic::{CyclicLR, Mode};
 //! # use lr_schedulers::Scheduler;
 //! let mut scheduler = CyclicLR::new(0.01, 0.1, 4, None, Mode::Triangular, 1.0, None);
-//! let mut learning_rates = Vec::new();
+//! let mut learning_rates: Vec<f64> = Vec::new();
 //! for _ in 0 .. 12 {
-//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     learning_rates.push(scheduler.get_lr());
 //!     scheduler.step(0.0);
 //! }
 //! // Forms triangular pattern: base -> max -> base -> max -> base
@@ -25,9 +25,9 @@
 //! # use lr_schedulers::cyclic::{CyclicLR, Mode};
 //! # use lr_schedulers::Scheduler;
 //! let mut scheduler = CyclicLR::new(0.01, 0.1, 2, None, Mode::Triangular2, 1.0, None);
-//! let mut learning_rates = Vec::new();
+//! let mut learning_rates: Vec<f64> = Vec::new();
 //! for _ in 0 .. 8 {
-//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     learning_rates.push(scheduler.get_lr());
 //!     scheduler.step(0.0);
 //! }
 //! // Each cycle has half the amplitude of the previous cycle
@@ -39,9 +39,9 @@
 //! # use lr_schedulers::cyclic::{CyclicLR, Mode};
 //! # use lr_schedulers::Scheduler;
 //! let mut scheduler = CyclicLR::new(0.01, 0.1, 3, None, Mode::ExpRange, 0.99, None);
-//! let mut learning_rates = Vec::new();
+//! let mut learning_rates: Vec<f64> = Vec::new();
 //! for _ in 0 .. 9 {
-//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     learning_rates.push(scheduler.get_lr());
 //!     scheduler.step(0.0);
 //! }
 //! // Amplitude decreases exponentially with gamma
@@ -54,10 +54,10 @@
 //! # use lr_schedulers::Scheduler;
 //! # use std::f64::consts::PI;
 //! let custom_fn = |x: f64| 0.5 * (1.0 + (PI * x).cos());
-//! let mut scheduler = CyclicLR::new(0.01, 0.1, 4, None, Mode::Triangular, 1.0, Some((custom_fn, ScaleMode::Cycle)));
-//! let mut learning_rates = Vec::new();
+//! let mut scheduler = CyclicLR::with_scale_fn(0.01, 0.1, 4, None, Mode::Triangular, 1.0, Some((custom_fn, ScaleMode::Cycle)));
+//! let mut learning_rates: Vec<f64> = Vec::new();
 //! for _ in 0 .. 8 {
-//!     learning_rates.push(scheduler.get_lr(0.0));
+//!     learning_rates.push(scheduler.get_lr());
 //!     scheduler.step(0.0);
 //! }
 //! // Uses cosine-based custom scaling
@@ -221,7 +221,7 @@ where
         self.lr = self.base_lr + amplitude * x;
     }
 
-    fn get_lr(&self, _loss: f64) -> f64 {
+    fn get_lr(&self) -> f64 {
         self.lr
     }
 }
@@ -241,7 +241,7 @@ mod tests {
         let expected_positions = [0.0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0.0];
 
         for &expected_x in expected_positions.iter() {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             let expected_lr = 0.1 + (0.9 - 0.1) * expected_x;
             assert_relative_eq!(lr, expected_lr, epsilon = 1e-10, max_relative = 1e-10);
             scheduler.step(0.0);
@@ -268,7 +268,7 @@ mod tests {
             while scheduler.step_count < step {
                 scheduler.step(0.0);
             }
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, expected_lr, epsilon = 1e-10, max_relative = 1e-10);
         }
     }
@@ -279,7 +279,7 @@ mod tests {
 
         // Test first few steps
         for step in 0..4 {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             let (_, x) = scheduler.get_cycle_and_position();
             let expected_scale = 0.9_f64.powi(step);
             let expected_lr = 0.1 + (0.5 - 0.1) * expected_scale * x;
@@ -304,7 +304,7 @@ mod tests {
         // First cycle should use cosine_fn(1.0)
         let expected_scale = 0.5 * (1.0 + (PI * 1.0).cos()); // ≈ 0.0
 
-        let lr = scheduler.get_lr(0.0);
+        let lr = scheduler.get_lr();
         let (_, x) = scheduler.get_cycle_and_position();
         let expected_lr = 0.1 + (0.5 - 0.1) * expected_scale * x;
         assert_relative_eq!(lr, expected_lr, epsilon = 1e-10, max_relative = 1e-10);
@@ -331,7 +331,7 @@ mod tests {
             while scheduler.step_count < step {
                 scheduler.step(0.0);
             }
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             let expected_lr = 0.1 + (0.9 - 0.1) * expected_x;
             assert_relative_eq!(lr, expected_lr, epsilon = 1e-10, max_relative = 1e-10);
         }
@@ -344,7 +344,7 @@ mod tests {
         // Test that we correctly handle cycle boundaries
         for _cycle in 0..2 {
             // Start of cycle should be at base_lr
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             assert_relative_eq!(lr, 0.2, epsilon = 1e-10, max_relative = 1e-10);
 
             // Move through the cycle
@@ -363,7 +363,7 @@ mod tests {
 
         // Run for multiple cycles
         for _ in 0..20 {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             min_lr = min_lr.min(lr);
             max_lr = max_lr.max(lr);
             scheduler.step(0.0);
@@ -389,7 +389,7 @@ mod tests {
 
         // Test that scale function is called with iteration count
         for step in 0..4 {
-            let lr = scheduler.get_lr(0.0);
+            let lr = scheduler.get_lr();
             let (_, x) = scheduler.get_cycle_and_position();
             let cycle_iterations = step % 4; // cycle length = 4
             let expected_scale = (cycle_iterations as f64) * 0.1;
